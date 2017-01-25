@@ -25,6 +25,20 @@ class Command {
     public static $result;
 
     /**
+     * Output of last execution.
+     * 
+     * @var string
+     */
+    public static $output;
+
+    /**
+     * Last executed command.
+     * 
+     * @var string
+     */
+    public static $last;
+
+    /**
      * Flat array of commands parts.
      * 
      * @var array
@@ -90,8 +104,10 @@ class Command {
     {
         $parts = array_map('escapeshellarg', $this->parts);
 
-        // show what command is executed
-        echo implode(' ', $parts) . PHP_EOL;
+        // save and show what command is executed
+        static::$last = implode(' ', $parts);
+
+        echo static::$last . PHP_EOL;
 
         // temporary redirect error log to fetch its output after script execution
         $log_path = __DIR__ . '/../logs.txt';
@@ -116,12 +132,10 @@ class Command {
             $error_log = null;
         }
 
-        // show command output and error log
-        echo implode(PHP_EOL, $output);
+        // save and show command output together with error log
+        static::$output = implode(PHP_EOL, $output) . (trim($error_log) ? $error_log : '');
 
-        if (trim($error_log)) {
-            echo $error_log;
-        }
+        echo static::$output;
 
         // save and return last result code
         static::$result = $code;
