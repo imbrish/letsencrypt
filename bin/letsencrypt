@@ -149,19 +149,19 @@ foreach ($config['certificates'] as $certificate) {
 
     if (Command::$result) {
         clear($config['storage'] . '/' . $name);
-        error('Error when issuing certificate for domain ' . $name);
+        error('Error when issuing certificate for ' . $name);
     }
 
     // install certificate in cpanel for corresponding domains
 
-    $domains = array_unique(array_map(function ($domain) {
+    $installDomains = array_unique(array_map(function ($domain) {
         // remove www prefix
         return substr(strtolower($domain), 0, 4) == 'www.'
             ? substr($domain, 4)
             : $domain;
     }, array_keys($domains)));
 
-    foreach ($domains as $domain) {
+    foreach ($installDomains as $domain) {
         Command::exec('sslic', [
             $domain,
             $config['storage'] . '/' . $name . '/cert.pem',
@@ -171,11 +171,11 @@ foreach ($config['certificates'] as $certificate) {
 
         if (Command::$result) {
             clear($config['storage'] . '/' . $name);
-            error('Error when installing certificate for domain ' . $domain);
+            error('Error when installing certificate for ' . $domain);
         }
     }
 
-    $success[] = 'Certificate for domain ' . $name . ' issued and installed.';
+    $success[] = 'Certificate issued and installed for domains: ' . implode(', ', array_keys($domains)) . '.';
 
     $climate->out(end($success));
 }
