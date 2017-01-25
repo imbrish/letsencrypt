@@ -80,5 +80,28 @@ Command::exec('acme', [
 // check, issue and setup certificates
 
 foreach ($config['certificates'] as $certificate) {
-	// $climate->arguments->get('notify');
+    // extract domains array
+    $domains = [];
+
+    foreach ($certificate['domains'] as $path => $names) {
+        foreach ((array) $names as $name) {
+            $domains[$name] = $path;
+        }
+    }
+
+    // check whether certificate should be renewed
+	$result = Command::exec('acme', [
+        'check',
+        '--name' => reset(array_keys($domains)),
+        '--ttl' => $config['renew'],
+        '--names' => implode(',', array_keys($domains)),
+    ]);
+
+    if (! $result) {
+        continue;
+    }
+
+    // issue new certificate
+
+
 }
