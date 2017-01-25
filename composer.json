@@ -24,5 +24,10 @@
         "kelunik/acme-client": "*",
         "neurobin/sslic": "*",
 		"vlucas/phpdotenv": "^2.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Imbrish\\LetsEncrypt\\": "src"
+        }
     }
 }
