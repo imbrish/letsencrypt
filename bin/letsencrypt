@@ -9,12 +9,12 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 // autoload and check environment
 
-if (! file_exists(__DIR__ . '/vendor/autoload.php')) {
+if (! file_exists(__DIR__ . '/../vendor/autoload.php')) {
     echo 'You need to install the composer dependencies!' . PHP_EOL;
     exit(-1);
 }
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 $climate = new CLImate;
 
@@ -43,7 +43,7 @@ $climate->arguments->parse();
 
 // load configuration
 
-$dotenv = new Dotenv(__DIR__);
+$dotenv = new Dotenv(__DIR__ . '/..');
 $dotenv->load();
 
 try {
@@ -58,8 +58,8 @@ $config['server'] = 'letsencrypt';
 // setup command class
 
 Command::$aliases = [
-	'acme' => __DIR__ . '/vendor/kelunik/acme-client/bin/acme',
-    'sslic' => __DIR__ . '/vendor/neurobin/sslic/sslic',
+	'acme' => __DIR__ . '/../vendor/kelunik/acme-client/bin/acme',
+    'sslic' => __DIR__ . '/../vendor/neurobin/sslic/sslic',
 ];
 
 // register a certification account
