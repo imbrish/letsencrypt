@@ -1,0 +1,5 @@
+# Source for composer packages
+/vendor
+
+# Secret configuration
+.env
