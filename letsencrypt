@@ -1,0 +1,58 @@
+#!/usr/bin/env php
+<?php
+
+use League\CLImate\CLImate;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
+// autoload and check environment
+
+if (! file_exists(__DIR__ . '/vendor/autoload.php')) {
+    echo 'You need to install the composer dependencies!' . PHP_EOL;
+    exit(-1);
+}
+
+require __DIR__ . '/vendor/autoload.php';
+
+$climate = new CLImate;
+
+if (! function_exists('openssl_pkey_get_private')) {
+	$climate->error('You need to enable OpenSSL in your php.ini!');
+    exit(-2);
+}
+
+if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
+    $climate->error('Please run this script on the command line!');
+    exit(1);
+}
+
+// define and parse arguments
+
+$climate->arguments->add([
+    'notify' => [
+        'prefix'       => 'n',
+        'longPrefix'   => 'notify',
+        'description'  => 'Send notification to email defined in config file',
+        'noValue'      => true,
+    ],
+]);
+
+$climate->arguments->parse();
+
+// load configuration
+
+try {
+    $config = Yaml::parse(file_get_contents('config.yml'));
+} catch (ParseException $e) {
+    $this->climate->error('There was an error when parsing config file!');
+    exit(1);
+}
+
+$config['cpanel']['user'] = getenv('CPANEL_USER');
+$config['cpanel']['password'] = getenv('CPANEL_PASS');
+
+// check, issue and setup certificates
+
+foreach ($config['certificates'] as $certificate) {
+	// $climate->arguments->get('notify');
+}
