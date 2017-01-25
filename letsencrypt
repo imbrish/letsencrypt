@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use Dotenv\Dotenv;
 use League\CLImate\CLImate;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -47,6 +48,9 @@ try {
     $this->climate->error('There was an error when parsing config file!');
     exit(1);
 }
+
+$dotenv = new Dotenv(__DIR__);
+$dotenv->load();
 
 $config['cpanel']['user'] = getenv('CPANEL_USER');
 $config['cpanel']['password'] = getenv('CPANEL_PASS');
