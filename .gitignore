@@ -3,3 +3,6 @@
 
 # Secret configuration
 .env
+
+# Copied composer files
+bin/acme

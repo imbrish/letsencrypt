@@ -29,5 +29,19 @@
         "psr-4": {
             "Imbrish\\LetsEncrypt\\": "src"
         }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "php -r \"copy('.env.example', '.env');\""
+        ],
+        "copy-commands": [
+            "php -r \"copy('vendor/kelunik/acme-client/bin/acme', 'bin/acme');\""
+        ],
+        "post-install-cmd": [
+            "@copy-commands"
+        ],
+        "post-update-cmd": [
+            "@copy-commands"
+        ]
     }
 }
