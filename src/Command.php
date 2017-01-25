@@ -4,6 +4,13 @@ namespace Imbrish\LetsEncrypt;
 
 class Command {
     /**
+     * Command aliases.
+     * 
+     * @var array
+     */
+    public static $aliases = [];
+
+    /**
      * Flat array of commands parts.
      * 
      * @var array
@@ -37,7 +44,7 @@ class Command {
     {
         $this->parts = [
             PHP_BINARY,
-            $cmd,
+            array_key_exists($cmd, static::$aliases) ? static::$aliases[$cmd] : $cmd,
         ];
 
         foreach ($args as $key => $value) {
@@ -58,6 +65,12 @@ class Command {
     {
         $cmd = implode(' ', array_map('escapeshellarg', $this->parts));
 
-        return shell_exec($cmd);
+        echo $cmd . PHP_EOL;
+
+        exec($cmd, $output, $code);
+
+        echo implode(PHP_EOL, $output);
+
+        return $code;
     }
 }

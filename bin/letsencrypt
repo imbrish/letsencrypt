@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use Dotenv\Dotenv;
 use League\CLImate\CLImate;
 use Imbrish\LetsEncrypt\Command;
 use Symfony\Component\Yaml\Yaml;
@@ -60,13 +59,13 @@ putenv('PASS=' . $config['cpanel']['password']);
 // setup command class
 
 Command::$aliases = [
-	'acme' => __DIR__ . '/../vendor/kelunik/acme-client/bin/acme',
+    'acme' => __DIR__ . '/acme',
     'sslic' => __DIR__ . '/../vendor/neurobin/sslic/sslic',
 ];
 
 // register a certification account
 
-echo Command::exec('acme', [
+Command::exec('acme', [
 	'setup',
 	'--email' => $config['email'],
 	'--server' => $config['server'],
