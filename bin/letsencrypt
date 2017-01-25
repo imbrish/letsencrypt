@@ -45,7 +45,7 @@ $climate->arguments->parse();
 try {
     $config = Yaml::parse(file_get_contents('config.yml'));
 } catch (ParseException $e) {
-    $this->climate->error('There was an error when parsing config file!');
+    $climate->error('There was an error when parsing config file!');
     exit(2);
 }
 
@@ -69,6 +69,18 @@ Command::$defaults = [
         '--storage' => $config['storage'],
     ],
 ];
+// report processing error
+
+function error($message) {
+    global $climate;
+
+    if ($climate->arguments->get('notify')) {
+        mail($config['notify'], $message, Command::$last . PHP_EOL . Command::$output);
+    }
+
+    $climate->error($message);
+    exit(3);
+}
 
 // register a certification account
 
@@ -77,7 +89,13 @@ Command::exec('acme', [
 	'--email' => $config['email'],
 ]);
 
+if (Command::$result) {
+    error('Failed to setup acme client');
+}
+
 // check, issue and setup certificates
+
+$success = [];
 
 foreach ($config['certificates'] as $certificate) {
 
@@ -91,15 +109,21 @@ foreach ($config['certificates'] as $certificate) {
         }
     }
 
+    $name = array_keys($domains)[0];
+
     // check whether certificate should be renewed
 
 	Command::exec('acme', [
         'check',
-        '--name' => array_keys($domains)[0],
+        '--name' => $name,
         '--ttl' => $config['renew'],
         '--names' => implode(',', array_keys($domains)),
     ]);
 
+    if (Command::$result == 255) {
+        error('Error when checking certificate for domain ' . $name);
+    }
+    
     if (! Command::$result) {
         continue;
     }
@@ -112,6 +136,10 @@ foreach ($config['certificates'] as $certificate) {
         '--path' => implode(':', array_values($domains)),
         '--bits' => $certificate['bits'],
     ]);
+
+    if (Command::$result) {
+        error('Error when issuing certificate for domain ' . $name);
+    }
 
     // install certificate in cpanel for corresponding domains
 
@@ -129,5 +157,22 @@ foreach ($config['certificates'] as $certificate) {
             $config['storage'] . '/key.pem',
             $config['storage'] . '/chain.pem',
         ]);
+
+        if (Command::$result) {
+            error('Error when installing certificate for domain ' . $domain);
+        }
     }
+
+    $success[] = 'Certificate for domain ' . $name . ' issued and installed.';
+
+    $climate->out(end($success));
+}
+
+if ($success) {
+    if ($climate->arguments->get('notify')) {
+        mail($config['notify'], 'New certificates have been issued', implode(PHP_EOL, $success));
+    }
+}
+else {
+    $climate->out('No certificates were issued.');
 }
