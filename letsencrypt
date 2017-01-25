@@ -3,6 +3,7 @@
 
 use Dotenv\Dotenv;
 use League\CLImate\CLImate;
+use Imbrish\LetsEncrypt\Command;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -53,6 +54,22 @@ try {
 }
 
 $config['server'] = 'letsencrypt';
+
+// setup command class
+
+Command::$aliases = [
+	'acme' => __DIR__ . '/vendor/kelunik/acme-client/bin/acme',
+    'sslic' => __DIR__ . '/vendor/neurobin/sslic/sslic',
+];
+
+// register a certification account
+
+echo Command::exec('acme', [
+	'setup',
+	'--email' => $config['email'],
+	'--server' => $config['server'],
+	'--storage' => $config['storage'],
+]);
 
 // check, issue and setup certificates
 
