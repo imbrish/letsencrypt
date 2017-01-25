@@ -1,8 +1,8 @@
 # Source for composer packages
 /vendor
 
-# Secret configuration
-.env
+# Configuration file
+config.yml
 
 # Copied composer files
 bin/acme

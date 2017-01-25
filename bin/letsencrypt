@@ -43,9 +43,6 @@ $climate->arguments->parse();
 
 // load configuration
 
-$dotenv = new Dotenv(__DIR__ . '/..');
-$dotenv->load();
-
 try {
     $config = Yaml::parse(file_get_contents('config.yml'));
 } catch (ParseException $e) {
@@ -54,6 +51,11 @@ try {
 }
 
 $config['server'] = 'letsencrypt';
+
+// set environment variables
+
+putenv('USER=' . $config['cpanel']['user']);
+putenv('PASS=' . $config['cpanel']['password']);
 
 // setup command class
 

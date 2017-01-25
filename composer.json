@@ -22,8 +22,7 @@
     ],
     "require": {
         "kelunik/acme-client": "*",
-        "neurobin/sslic": "*",
-		"vlucas/phpdotenv": "^2.4"
+        "neurobin/sslic": "*"
     },
     "autoload": {
         "psr-4": {
@@ -32,7 +31,7 @@
     },
     "scripts": {
         "post-root-package-install": [
-            "php -r \"copy('.env.example', '.env');\""
+            "php -r \"copy('config.yml.example', 'config.yml');\""
         ],
         "copy-commands": [
             "php -r \"copy('vendor/kelunik/acme-client/bin/acme', 'bin/acme');\""

@@ -1,5 +1,5 @@
 # Storage directory for certificates and keys.
-storage: D:\certs
+storage: /home/user/certs
 
 # E-mail to use for the setup.
 email: me@example.com
@@ -26,3 +26,8 @@ certificates:
 
 # E-mail to send notifications.
 notify: me@example.com
+
+# CPanel credentials.
+cpanel:
+    user: example
+    password: secret
