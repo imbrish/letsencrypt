@@ -17,10 +17,10 @@ certificates:
     #        array. The first domain will be the common name.
     - bits: 4096
       domains:
-        /public_html:
+        /home/user/public_html:
             - example.com
             - www.example.com
-        /sub/public_html:
+        /home/user/sub/public_html:
             - sub.example.com
             - www.sub.example.com
 

@@ -92,7 +92,7 @@ foreach ($config['certificates'] as $certificate) {
     // check whether certificate should be renewed
 	$result = Command::exec('acme', [
         'check',
-        '--name' => reset(array_keys($domains)),
+        '--name' => array_keys($domains)[0],
         '--ttl' => $config['renew'],
         '--names' => implode(',', array_keys($domains)),
     ]);

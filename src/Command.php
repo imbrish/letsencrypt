@@ -32,7 +32,7 @@ class Command {
      *
      * @return mixed
      */
-    public static function exec($cmd, $args)
+    public static function exec($cmd, $args = [])
     {
         $instance = new static($cmd, $args);
 
