@@ -69,6 +69,7 @@ Command::$defaults = [
         '--storage' => $config['storage'],
     ],
 ];
+
 // report processing error
 
 function error($message) {
@@ -153,9 +154,9 @@ foreach ($config['certificates'] as $certificate) {
     foreach ($domains as $domain) {
         Command::exec('sslic', [
             $domain,
-            $config['storage'] . '/cert.pem',
-            $config['storage'] . '/key.pem',
-            $config['storage'] . '/chain.pem',
+            $config['storage'] . '/' . $name . '/cert.pem',
+            $config['storage'] . '/' . $name . '/key.pem',
+            $config['storage'] . '/' . $name . '/chain.pem',
         ]);
 
         if (Command::$result) {
