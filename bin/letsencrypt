@@ -46,7 +46,7 @@ try {
     $config = Yaml::parse(file_get_contents('config.yml'));
 } catch (ParseException $e) {
     $this->climate->error('There was an error when parsing config file!');
-    exit(1);
+    exit(2);
 }
 
 $config['server'] = 'letsencrypt';
