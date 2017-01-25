@@ -63,13 +63,18 @@ Command::$aliases = [
     'sslic' => __DIR__ . '/../vendor/neurobin/sslic/sslic',
 ];
 
+Command::$defaults = [
+    'acme' => [
+        '--server' => $config['server'],
+        '--storage' => $config['storage'],
+    ],
+];
+
 // register a certification account
 
 Command::exec('acme', [
 	'setup',
 	'--email' => $config['email'],
-	'--server' => $config['server'],
-	'--storage' => $config['storage'],
 ]);
 
 // check, issue and setup certificates

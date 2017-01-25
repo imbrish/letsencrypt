@@ -11,6 +11,13 @@ class Command {
     public static $aliases = [];
 
     /**
+     * Default arguments.
+     * 
+     * @var array
+     */
+    public static $defaults = [];
+
+    /**
      * Flat array of commands parts.
      * 
      * @var array
@@ -40,12 +47,23 @@ class Command {
      *
      * @return void
      */
-    public function __construct($cmd, $args)
+    public function __construct($cmd, $args = [])
     {
         $this->parts = [
             PHP_BINARY,
             array_key_exists($cmd, static::$aliases) ? static::$aliases[$cmd] : $cmd,
         ];
+
+        if (array_key_exists($cmd, static::$defaults)) {
+            foreach (static::$defaults[$cmd] as $key => $value) {
+                if (! is_int($key)) {
+                    $args[$key] = $value;
+                }
+                else if (! in_array($value, $args)) {
+                    $args[$value];
+                }
+            }
+        }
 
         foreach ($args as $key => $value) {
             if (! is_int($key)) {
