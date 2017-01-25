@@ -18,6 +18,13 @@ class Command {
     public static $defaults = [];
 
     /**
+     * Result of last execution.
+     * 
+     * @var int
+     */
+    public static $result;
+
+    /**
      * Flat array of commands parts.
      * 
      * @var array
@@ -88,6 +95,8 @@ class Command {
         exec($cmd, $output, $code);
 
         echo implode(PHP_EOL, $output);
+
+        static::$result = $code;
 
         return $code;
     }
