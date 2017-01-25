@@ -73,7 +73,7 @@ Command::$defaults = [
 // report processing error
 
 function error($message) {
-    global $climate;
+    global $climate, $config;
 
     if ($climate->arguments->get('notify')) {
         mail($config['notify'], $message, Command::$last . PHP_EOL . Command::$output);
