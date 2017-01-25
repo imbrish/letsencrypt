@@ -1,0 +1,27 @@
+{
+	"name": "imbrish/letsencrypt",
+    "description": "PHP script for automatic issuing and renewal of Let's Encrypt certificates on shared hostings.",
+    "version": "0.0.1",
+    "repositories": [
+        {
+            "url": "https://github.com/kelunik/acme-client.git",
+            "type": "git"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "neurobin/sslic",
+                "version": "0.0.2",
+                "source": {
+                    "url": "https://github.com/neurobin/sslic.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
+    "require": {
+        "kelunik/acme-client": "*",
+        "neurobin/sslic": "*"
+    }
+}
