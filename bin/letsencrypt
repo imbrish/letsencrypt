@@ -83,6 +83,15 @@ function error($message) {
     exit(3);
 }
 
+// delete all files and remove folder
+
+function clear($dir) {
+    if (file_exists($dir) && is_dir($dir)) {
+        array_map('unlink', glob($dir . '/*'));
+        rmdir($dir);
+    }
+}
+
 // register a certification account
 
 Command::exec('acme', [
@@ -139,6 +148,7 @@ foreach ($config['certificates'] as $certificate) {
     ]);
 
     if (Command::$result) {
+        clear($config['storage'] . '/' . $name);
         error('Error when issuing certificate for domain ' . $name);
     }
 
@@ -160,6 +170,7 @@ foreach ($config['certificates'] as $certificate) {
         ]);
 
         if (Command::$result) {
+            clear($config['storage'] . '/' . $name);
             error('Error when installing certificate for domain ' . $domain);
         }
     }
