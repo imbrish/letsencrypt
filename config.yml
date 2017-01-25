@@ -1,0 +1,31 @@
+# Home directory
+home: /home/user
+
+# Storage directory for certificates and keys.
+storage: /certs
+
+# E-mail to use for the setup.
+email: me@example.com
+
+# Renew certificate if it expires within so many days.
+renew: 30
+
+# List of certificates to issue.
+certificates:
+    # For each certificate, there are a few options.
+    #
+    # bits:  Number of bits for the domain private key
+    # paths: Map of document roots to domains. Maps each path to one or multiple
+    #        domains. If one domain is given, it's automatically converted to an
+    #        array. The first domain will be the common name.
+    - bits: 4096
+      domains:
+        /public_html:
+            - example.com
+            - www.example.com
+        /sub/public_html:
+            - sub.example.com
+            - www.sub.example.com
+
+# E-mail to send notifications.
+notify: me@example.com
