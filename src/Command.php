@@ -88,14 +88,42 @@ class Command {
      */
     public function __exec()
     {
-        $cmd = implode(' ', array_map('escapeshellarg', $this->parts));
+        $parts = array_map('escapeshellarg', $this->parts);
 
-        echo $cmd . PHP_EOL;
+        // show what command is executed
+        echo implode(' ', $parts) . PHP_EOL;
 
-        exec($cmd, $output, $code);
+        // temporary redirect error log to fetch its output after script execution
+        $log_path = __DIR__ . '/../logs.txt';
 
+        array_splice($parts, 1, 0, '-d error_log=' . escapeshellarg($log_path));
+
+        // tunnels error output to standard output
+        $parts[] = '2>&1';
+
+        exec(implode(' ', $parts), $output, $code);
+
+        // get and erase temporary error log
+        if (file_exists($log_path)) {
+            $error_log = file_get_contents($log_path);
+
+            // remove dates
+            $error_log = preg_replace('/^\[.+?\] /m', '', $error_log);
+
+            unlink($log_path);
+        }
+        else {
+            $error_log = null;
+        }
+
+        // show command output and error log
         echo implode(PHP_EOL, $output);
 
+        if (trim($error_log)) {
+            echo $error_log;
+        }
+
+        // save and return last result code
         static::$result = $code;
 
         return $code;
