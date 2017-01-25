@@ -60,7 +60,7 @@ putenv('PASS=' . $config['cpanel']['password']);
 
 Command::$aliases = [
     'acme' => __DIR__ . '/acme',
-    'sslic' => __DIR__ . '/../vendor/neurobin/sslic/sslic',
+    'sslic' => realpath(__DIR__ . '/../vendor/neurobin/sslic/sslic.php'),
 ];
 
 Command::$defaults = [
@@ -80,7 +80,9 @@ Command::exec('acme', [
 // check, issue and setup certificates
 
 foreach ($config['certificates'] as $certificate) {
+
     // extract domains array
+
     $domains = [];
 
     foreach ($certificate['domains'] as $path => $names) {
@@ -90,6 +92,7 @@ foreach ($config['certificates'] as $certificate) {
     }
 
     // check whether certificate should be renewed
+
 	Command::exec('acme', [
         'check',
         '--name' => array_keys($domains)[0],
@@ -103,5 +106,28 @@ foreach ($config['certificates'] as $certificate) {
 
     // issue new certificate
 
+    Command::exec('acme', [
+        'issue',
+        '--domains' => implode(':', array_keys($domains)),
+        '--path' => implode(':', array_values($domains)),
+        '--bits' => $certificate['bits'],
+    ]);
 
+    // install certificate in cpanel for corresponding domains
+
+    $domains = array_unique(array_map(function ($domain) {
+        // remove www prefix
+        return substr(strtolower($domain), 0, 4) == 'www.'
+            ? substr($domain, 4)
+            : $domain;
+    }, array_keys($domains)));
+
+    foreach ($domains as $domain) {
+        Command::exec('sslic', [
+            $domain,
+            $config['storage'] . '/cert.pem',
+            $config['storage'] . '/key.pem',
+            $config['storage'] . '/chain.pem',
+        ]);
+    }
 }
