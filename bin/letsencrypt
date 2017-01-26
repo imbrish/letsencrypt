@@ -50,6 +50,12 @@ try {
 }
 
 $config['server'] = 'letsencrypt';
+$config['storage'] = __DIR__ . '/storage';
+
+$server = \Kelunik\AcmeClient\resolveServer($config['server']);
+$dir = \Kelunik\AcmeClient\serverToKeyname($server);
+
+$config['certs'] = $config['storage'] . '/certs/' . $dir;
 
 // set environment variables
 
@@ -115,7 +121,7 @@ foreach ($config['certificates'] as $certificate) {
 
     foreach ($certificate['domains'] as $path => $names) {
         foreach ((array) $names as $name) {
-            $domains[$name] = $path;
+            $domains[$name] = $config['home'] . $path;
         }
     }
 
@@ -161,12 +167,14 @@ foreach ($config['certificates'] as $certificate) {
             : $domain;
     }, array_keys($domains)));
 
+    $path = $config['certs'] . '/' . $name;
+
     foreach ($installDomains as $domain) {
         Command::exec('sslic', [
             $domain,
-            $config['storage'] . '/' . $name . '/cert.pem',
-            $config['storage'] . '/' . $name . '/key.pem',
-            $config['storage'] . '/' . $name . '/chain.pem',
+            $path . '/cert.pem',
+            $path . '/key.pem',
+            $path . '/chain.pem',
         ]);
 
         if (Command::$result) {

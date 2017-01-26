@@ -1,5 +1,5 @@
-# Storage directory for certificates and keys.
-storage: /home/user/certs
+# Base directory for domain paths
+home: /home/user
 
 # E-mail to use for the setup.
 email: me@example.com
@@ -17,10 +17,10 @@ certificates:
     #        array. The first domain will be the common name.
     - bits: 4096
       domains:
-        /home/user/public_html:
+        /public_html:
             - example.com
             - www.example.com
-        /home/user/sub/public_html:
+        /sub/public_html:
             - sub.example.com
             - www.sub.example.com
 
