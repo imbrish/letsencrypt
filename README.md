@@ -1,7 +1,9 @@
 # letsencrypt
 PHP script for automatic issuing and renewal of Let's Encrypt certificates on shared hostings.
 
-Domains for SSL certificate should be defined in the `config.yml`
+## Configuration
+
+Domains for SSL certificate should be defined in the `config.yml`:
 
 ```yml
 # Base directory for domain paths
@@ -39,21 +41,23 @@ cpanel:
     password: secret
 ```
 
-Then certificates can be issued/renewed by running script manually.
+## Usage
 
-We can make the script executable
+Certificates can be issued/renewed by running script manually.
+
+First make the script executable:
 
 ```
 chmod +x bin/letsencrypt
 ```
 
-And then run it directly
+And then run it directly:
 
 ```
 bin/letsencrypt
 ```
 
-Or just run it using php
+Or just run it using php:
 
 ```
 php bin/letsencrypt
@@ -62,13 +66,15 @@ php bin/letsencrypt
 Script will check if certificates should be renewed and issue/reissue them if so.
 Then it will install newly issued certificates in all specified domains using CPanel API.
 
-It can also notify you about actions it took via email, if you wish so.
+It can also notify you about actions it took via email, if you wish so, see below:
 
 Command line options
 
 ```
 -n, -notify : Send email for errors / issued certificates to notify email defined in config
 ```
+
+## Cron job
 
 Even more automation by setting up a cron job
 
