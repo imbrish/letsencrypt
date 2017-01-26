@@ -14,11 +14,10 @@ renew: 30
 # List of certificates to issue.
 certificates:
     # For each certificate, there are a few options.
-    #
-    # bits:  Number of bits for the domain private key
-    # paths: Map of document roots to domains. Maps each path to one or multiple
-    #        domains. If one domain is given, it's automatically converted to an
-    #        array. The first domain will be the common name.
+    # bits:    Number of bits for the domain private key
+    # domains: Map of document roots to domains. Maps each path to one or multiple
+    #          domains. If one domain is given, it's automatically converted to an
+    #          array. The first domain will be the common name.
     - bits: 4096
       domains:
         /public_html:
@@ -36,6 +35,6 @@ cpanel:
     user: example
     password: secret
 
-# Custom nameserver ip used by 'acme issue' command
+# Custom nameserver ip used by "acme issue" command
 # For example google public dns "8.8.8.8" or "8.8.4.4"
 nameserver: false

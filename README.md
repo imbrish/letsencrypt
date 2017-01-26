@@ -1,5 +1,14 @@
 # letsencrypt
-PHP script for automatic issuing and renewal of Let's Encrypt SSL certificates on shared hostings.
+PHP script for automatic issuing and renewal of [Let's Encrypt](https://letsencrypt.org/) SSL certificates on shared hostings.
+
+## Credits
+
+This script is in fact a wrapper for two other
+
+- https://github.com/kelunik/acme-client
+- https://github.com/neurobin/sslic
+
+Especially `acme-client` and [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/) greatly inspired development. Thanks to the authors!
 
 ## Installation
 
@@ -40,11 +49,10 @@ renew: 30
 # List of certificates to issue.
 certificates:
     # For each certificate, there are a few options.
-    #
-    # bits:  Number of bits for the domain private key
-    # paths: Map of document roots to domains. Maps each path to one or multiple
-    #        domains. If one domain is given, it's automatically converted to an
-    #        array. The first domain will be the common name.
+    # bits:    Number of bits for the domain private key
+    # domains: Map of document roots to domains. Maps each path to one or multiple
+    #          domains. If one domain is given, it's automatically converted to an
+    #          array. The first domain will be the common name.
     - bits: 4096
       domains:
         /public_html:
@@ -62,7 +70,7 @@ cpanel:
     user: example
     password: secret
 
-# Custom nameserver ip used by 'acme issue' command
+# Custom nameserver ip used by "acme issue" command
 # For example google public dns "8.8.8.8" or "8.8.4.4"
 nameserver: false
 ```
@@ -71,7 +79,7 @@ nameserver: false
 
 Certificates can be issued/renewed by running script manually.
 
-Running script as executable:
+Run script as executable:
 
 ```bash
 # Make the script executable
@@ -81,7 +89,7 @@ chmod +x bin/letsencrypt
 bin/letsencrypt
 ```
 
-Running script using `php`:
+Alternatively script using `php`:
 
 ```bash
 php bin/letsencrypt
@@ -111,3 +119,10 @@ You can check path to cli version of php by connecting to your hosting via ssh a
 ```bash
 which php
 ```
+
+## Todo
+
+- Make script standalone
+    + Use https://github.com/mgufrone/cpanel-php to communicate with CPanel API directly
+    + Use https://github.com/kelunik/acme to issue certificates
+- Improve output, errors and emails
