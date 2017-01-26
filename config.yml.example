@@ -1,6 +1,10 @@
 # Base directory for domain paths
 home: /home/user
 
+# Server to use. URL to the ACME directory.
+# "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
+server: letsencrypt
+
 # E-mail to use for the setup.
 email: me@example.com
 
@@ -32,5 +36,6 @@ cpanel:
     user: example
     password: secret
 
-# Custom nameserver used by 'acme issue' command
+# Custom nameserver ip used by 'acme issue' command
+# For example google public dns "8.8.8.8" or "8.8.4.4"
 nameserver: false

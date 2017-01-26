@@ -52,7 +52,6 @@ try {
 }
 
 $config['base'] = $base;
-$config['server'] = 'letsencrypt';
 $config['storage'] = $config['base'] . '/storage';
 
 $server = \Kelunik\AcmeClient\resolveServer($config['server']);
