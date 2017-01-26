@@ -14,6 +14,9 @@ cd letsencrypt
 
 # Install dependencies
 composer install
+
+# Set up config file
+cp config.yml.example config.yml
 ```
 
 ## Configuration
