@@ -50,7 +50,7 @@ try {
 }
 
 $config['server'] = 'letsencrypt';
-$config['storage'] = __DIR__ . '/storage';
+$config['storage'] = __DIR__ . '/../storage';
 
 $server = \Kelunik\AcmeClient\resolveServer($config['server']);
 $dir = \Kelunik\AcmeClient\serverToKeyname($server);
