@@ -39,16 +39,13 @@
     },
     "scripts": {
         "post-root-package-install": [
-            "php -r \"copy('config.yml.example', 'config.yml');\""
-        ],
-        "copy-commands": [
-            "php -r \"copy('vendor/kelunik/acme-client/bin/acme', 'bin/acme');\""
+            "Imbrish\\LetsEncrypt\\Composer::createConfig"
         ],
         "post-install-cmd": [
-            "@copy-commands"
+            "Imbrish\\LetsEncrypt\\Composer::copyAcme"
         ],
         "post-update-cmd": [
-            "@copy-commands"
+            "Imbrish\\LetsEncrypt\\Composer::copyAcme"
         ]
     }
 }
