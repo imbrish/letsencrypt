@@ -12,10 +12,6 @@
     ],
     "repositories": [
         {
-            "url": "https://github.com/kelunik/acme-client.git",
-            "type": "git"
-        },
-        {
             "type": "package",
             "package": {
                 "name": "neurobin/sslic",
@@ -29,8 +25,8 @@
         }
     ],
     "require": {
-        "kelunik/acme-client": "*",
-        "neurobin/sslic": "*"
+        "neurobin/sslic": "*",
+		"kelunik/acme-client": "^0.2.13"
     },
     "autoload": {
         "psr-4": {
