@@ -38,9 +38,6 @@
         }
     },
     "scripts": {
-        "post-root-package-install": [
-            "Imbrish\\LetsEncrypt\\Composer::createConfig"
-        ],
         "post-install-cmd": [
             "Imbrish\\LetsEncrypt\\Composer::copyAcme"
         ],
