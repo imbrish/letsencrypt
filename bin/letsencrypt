@@ -43,7 +43,7 @@ $climate->arguments->parse();
 // load configuration
 
 try {
-    $config = Yaml::parse(file_get_contents('config.yml'));
+    $config = Yaml::parse(file_get_contents(__DIR__ . '/../config.yml'));
 } catch (ParseException $e) {
     $climate->error('There was an error when parsing config file!');
     exit(2);
