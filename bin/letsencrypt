@@ -8,12 +8,14 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 // autoload and check environment
 
-if (! file_exists(__DIR__ . '/../vendor/autoload.php')) {
+$base = realpath(__DIR__ . '/..');
+
+if (! file_exists($base . '/vendor/autoload.php')) {
     echo 'You need to install the composer dependencies!' . PHP_EOL;
     exit(-1);
 }
 
-require __DIR__ . '/../vendor/autoload.php';
+require $base . '/vendor/autoload.php';
 
 $climate = new CLImate;
 
@@ -43,14 +45,15 @@ $climate->arguments->parse();
 // load configuration
 
 try {
-    $config = Yaml::parse(file_get_contents(__DIR__ . '/../config.yml'));
+    $config = Yaml::parse(file_get_contents($base . '/config.yml'));
 } catch (ParseException $e) {
     $climate->error('There was an error when parsing config file!');
     exit(2);
 }
 
+$config['base'] = $base;
 $config['server'] = 'letsencrypt';
-$config['storage'] = __DIR__ . '/../storage';
+$config['storage'] = $config['base'] . '/storage';
 
 $server = \Kelunik\AcmeClient\resolveServer($config['server']);
 $dir = \Kelunik\AcmeClient\serverToKeyname($server);
@@ -65,8 +68,8 @@ putenv('PASS=' . $config['cpanel']['password']);
 // setup command class
 
 Command::$aliases = [
-    'acme' => __DIR__ . '/acme',
-    'sslic' => realpath(__DIR__ . '/../vendor/neurobin/sslic/sslic.php'),
+    'acme' => $config['base'] . '/bin/acme',
+    'sslic' => $config['base'] . '/vendor/neurobin/sslic/sslic.php',
 ];
 
 Command::$defaults = [
