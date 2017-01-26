@@ -65,6 +65,22 @@ $config['certs'] = $config['storage'] . '/certs/' . $dir;
 putenv('USER=' . $config['cpanel']['user']);
 putenv('PASS=' . $config['cpanel']['password']);
 
+// insert custom nameserver into 'acme issue' command
+// find resolve command, insert or replace nameserver if defined, remove otherwise
+
+$path = $config['base'] . '/vendor/kelunik/acme-client/src/Commands/Issue.php';
+$search = '/(?<=\\\Amp\\\Dns\\\resolve\(\$domain, \[)(\s*)(?:"server" => ".*",\s*)?(?="types" =>)/';
+$replace = '$1' . ($config['nameserver'] ? '"server" => "' . $config['nameserver'] . '",$1' : '');
+
+$content = preg_replace($search, $replace, file_get_contents($path), -1, $count);
+
+if (! $count) {
+    $climate->error("Could not replace nameserver used by 'acme issue' command.");
+    exit(4);
+}
+
+file_put_contents($path, $content);
+
 // setup command class
 
 Command::$aliases = [

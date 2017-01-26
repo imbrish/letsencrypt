@@ -57,6 +57,9 @@ notify: me@example.com
 cpanel:
     user: example
     password: secret
+
+# Custom nameserver used by 'acme issue' command
+nameserver: false
 ```
 
 ## Usage
