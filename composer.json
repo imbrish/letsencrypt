@@ -1,7 +1,15 @@
 {
 	"name": "imbrish/letsencrypt",
+	"homepage": "https://github.com/imbrish/letsencrypt",
     "description": "PHP script for automatic issuing and renewal of Let's Encrypt certificates on shared hostings.",
-    "version": "0.0.1",
+    "keywords": ["ssl", "certificate", "letsencrypt", "shared hosting"],
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Pawel Dominiak",
+            "homepage": "https://github.com/imbrish"
+        }
+    ],
     "repositories": [
         {
             "url": "https://github.com/kelunik/acme-client.git",
