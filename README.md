@@ -96,7 +96,7 @@ Command line options:
 Even more automation by setting up a cron job:
 
 ```
-0 0 * * * /path/to/php-cli /home/user/letsencrypt/bin/letsencrypt
+0 0 * * * /path/to/php-cli /home/user/letsencrypt/bin/letsencrypt -n
 ```
 
 It will run the script every day at midnight.
