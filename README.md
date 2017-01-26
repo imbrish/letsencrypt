@@ -1,9 +1,24 @@
 # letsencrypt
-PHP script for automatic issuing and renewal of Let's Encrypt certificates on shared hostings.
+PHP script for automatic issuing and renewal of Let's Encrypt SSL certificates on shared hostings.
+
+## Installation
+
+We use composer, so we can easily install all dependencies:
+
+```bash
+# Clone repository
+git clone https://github.com/imbrish/letsencrypt
+
+# Navigate to repository folder
+cd letsencrypt
+
+# Install dependencies
+composer install
+```
 
 ## Configuration
 
-Domains for SSL certificate should be defined in the `config.yml`:
+Domains for certificate should be defined in the `config.yml`:
 
 ```yml
 # Base directory for domain paths
@@ -23,14 +38,14 @@ certificates:
     # paths: Map of document roots to domains. Maps each path to one or multiple
     #        domains. If one domain is given, it's automatically converted to an
     #        array. The first domain will be the common name.
-    * bits: 4096
+    - bits: 4096
       domains:
         /public_html:
-            * example.com
-            * www.example.com
+            - example.com
+            - www.example.com
         /sub/public_html:
-            * sub.example.com
-            * www.sub.example.com
+            - sub.example.com
+            - www.sub.example.com
 
 # E-mail to send notifications.
 notify: me@example.com
@@ -45,38 +60,34 @@ cpanel:
 
 Certificates can be issued/renewed by running script manually.
 
-First make the script executable:
+Running script as executable:
 
-```
+```bash
+# Make the script executable
 chmod +x bin/letsencrypt
-```
 
-And then run it directly:
-
-```
+# Run it
 bin/letsencrypt
 ```
 
-Or just run it using php:
+Running script using `php`:
 
-```
+```bash
 php bin/letsencrypt
 ```
 
 Script will check if certificates should be renewed and issue/reissue them if so.
 Then it will install newly issued certificates in all specified domains using CPanel API.
 
-It can also notify you about actions it took via email, if you wish so, see below:
+It can also notify you about actions it took via email, if you wish so.
 
-Command line options
+Command line options:
 
-```
--n, -notify : Send email for errors / issued certificates to notify email defined in config
-```
+`-n`, `-notify` - Send email for errors / issued certificates to notify email defined in config.
 
 ## Cron job
 
-Even more automation by setting up a cron job
+Even more automation by setting up a cron job:
 
 ```
 0 0 * * * /path/to/php-cli /home/user/letsencrypt/bin/letsencrypt
@@ -84,8 +95,8 @@ Even more automation by setting up a cron job
 
 It will run the script every day at midnight.
 
-You can check path to cli version of php by connecting to your hosting via ssh and running
+You can check path to cli version of php by connecting to your hosting via ssh and running:
 
-```
+```bash
 which php
 ```

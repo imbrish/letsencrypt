@@ -1,7 +1,7 @@
 {
 	"name": "imbrish/letsencrypt",
 	"homepage": "https://github.com/imbrish/letsencrypt",
-    "description": "PHP script for automatic issuing and renewal of Let's Encrypt certificates on shared hostings.",
+    "description": "PHP script for automatic issuing and renewal of Let's Encrypt SSL certificates on shared hostings.",
     "keywords": ["ssl", "certificate", "letsencrypt", "shared hosting"],
     "license": "GPL-3.0",
     "authors": [
