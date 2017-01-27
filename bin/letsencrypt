@@ -109,6 +109,8 @@ function notify($subject, $message) {
 // report processing error
 
 function error($message) {
+    global $climate;
+
     notify($message, Command::$last . PHP_EOL . Command::$output);
 
     $climate->error($message);
