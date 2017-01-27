@@ -6,13 +6,23 @@ use Imbrish\LetsEncrypt\Command;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
+// define exit codes
+
+const EX_AUTOLOAD_NOT_FOUND    = 1;
+const EX_OPENSSL_NOT_FOUND     = 2;
+const EX_INVALID_SAPI          = 3;
+const EX_CONFIG_NOT_FOUND      = 4;
+const EX_CONFIG_PARSING_ERROR  = 5;
+const EX_PROCESSING_ERROR      = 6;
+const EX_NAMESERVER_HACK_ERROR = 11;
+
 // autoload and check environment
 
 $base = realpath(__DIR__ . '/..');
 
 if (! file_exists($base . '/vendor/autoload.php')) {
     echo 'You need to install the composer dependencies!' . PHP_EOL;
-    exit(-1);
+    exit(EX_AUTOLOAD_NOT_FOUND);
 }
 
 require $base . '/vendor/autoload.php';
@@ -21,12 +31,12 @@ $climate = new CLImate;
 
 if (! function_exists('openssl_pkey_get_private')) {
 	$climate->error('You need to enable OpenSSL in your php.ini!');
-    exit(-2);
+    exit(EX_OPENSSL_NOT_FOUND);
 }
 
 if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
     $climate->error('Please run this script on the command line!');
-    exit(1);
+    exit(EX_INVALID_SAPI);
 }
 
 // define and parse arguments
@@ -44,11 +54,16 @@ $climate->arguments->parse();
 
 // load configuration
 
+if (! file_exists($base . '/config.yml')) {
+    $climate->error('Config file could not be found!');
+    exit(EX_CONFIG_NOT_FOUND);
+}
+
 try {
     $config = Yaml::parse(file_get_contents($base . '/config.yml'));
 } catch (ParseException $e) {
     $climate->error('There was an error when parsing config file!');
-    exit(2);
+    exit(EX_CONFIG_PARSING_ERROR);
 }
 
 $config['base'] = $base;
@@ -75,7 +90,7 @@ $content = preg_replace($search, $replace, file_get_contents($path), -1, $count)
 
 if (! $count) {
     $climate->error("Could not replace nameserver used by 'acme issue' command.");
-    exit(4);
+    exit(EX_NAMESERVER_HACK_ERROR);
 }
 
 file_put_contents($path, $content);
@@ -114,7 +129,7 @@ function error($message) {
     notify($message, Command::$last . PHP_EOL . Command::$output);
 
     $climate->error($message);
-    exit(3);
+    exit(EX_PROCESSING_ERROR);
 }
 
 // recursively remove directory
