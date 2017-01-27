@@ -144,6 +144,7 @@ foreach ($config['certificates'] as $certificate) {
     }
 
     $name = array_keys($domains)[0];
+    $path = $config['certs'] . '/' . $name;
 
     // check whether certificate should be renewed
 
@@ -172,7 +173,7 @@ foreach ($config['certificates'] as $certificate) {
     ]);
 
     if (Command::$result) {
-        clear($config['storage'] . '/' . $name);
+        clear($path);
         error('Error when issuing certificate for ' . $name);
     }
 
@@ -185,8 +186,6 @@ foreach ($config['certificates'] as $certificate) {
             : $domain;
     }, array_keys($domains)));
 
-    $path = $config['certs'] . '/' . $name;
-
     foreach ($installDomains as $domain) {
         Command::exec('sslic', [
             $domain,
@@ -196,7 +195,7 @@ foreach ($config['certificates'] as $certificate) {
         ]);
 
         if (Command::$result) {
-            clear($config['storage'] . '/' . $name);
+            clear($path);
             error('Error when installing certificate for ' . $domain);
         }
     }
