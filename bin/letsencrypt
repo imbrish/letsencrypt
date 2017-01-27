@@ -141,7 +141,7 @@ Command::exec('acme', [
 	'--email' => $config['email'],
 ]);
 
-if (Command::$result) {
+if (Command::$result != 0) {
     error('Failed to setup acme client');
 }
 
@@ -179,7 +179,7 @@ foreach ($config['certificates'] as $certificate) {
 
     // issue new certificate
 
-    if (! Command::$result) {
+    if (Command::$result != 0) {
         Command::exec('acme', [
             'issue',
             '--domains' => implode(':', array_keys($domains)),
@@ -187,7 +187,7 @@ foreach ($config['certificates'] as $certificate) {
             '--bits' => $certificate['bits'],
         ]);
 
-        if (Command::$result) {
+        if (Command::$result != 0) {
             rrmdir($path);
             error('Error when issuing certificate for ' . $name);
         }
@@ -224,7 +224,7 @@ foreach ($config['certificates'] as $certificate) {
             $path . '/chain.pem',
         ]);
 
-        if (Command::$result) {
+        if (Command::$result != 0) {
             error('Error when installing certificate for ' . $domain);
         }
 
