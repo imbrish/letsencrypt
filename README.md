@@ -26,6 +26,9 @@ composer install
 
 # Set up config file
 cp config.yml.example config.yml
+
+# Allow only owner to access the config
+chmod 600 config.yml
 ```
 
 ## Configuration
@@ -83,7 +86,7 @@ Run script as executable:
 
 ```bash
 # Make the script executable
-chmod +x bin/letsencrypt
+chmod 775 bin/letsencrypt
 
 # Run it
 bin/letsencrypt
