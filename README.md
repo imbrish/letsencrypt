@@ -102,7 +102,7 @@ It can also notify you about actions it took via email, if you wish so.
 
 Command line options:
 
-`-n`, `-notify` - Send email for errors / issued certificates to notify email defined in config.
+`-n`, `-notify` - Notify via email about errors or issued certificates.
 
 ## Cron job
 
