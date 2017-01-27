@@ -189,14 +189,14 @@ foreach ($config['certificates'] as $certificate) {
             '--bits' => $certificate['bits'],
         ]);
 
-        if (Command::$result != 0) {
-            rrmdir($path);
-            error('Error when issuing certificate for ' . $name);
-        }
-
         // remove challenge directories
         foreach (array_unique(array_values($domains)) as $dir) {
             rrmdir($dir . '/.well-known');
+        }
+
+        if (Command::$result != 0) {
+            rrmdir($path);
+            error('Error when issuing certificate for ' . $name);
         }
 
         // ensure installation of newly issued certificate
