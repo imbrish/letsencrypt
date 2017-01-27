@@ -168,32 +168,38 @@ foreach ($config['certificates'] as $certificate) {
     if (Command::$result == 255) {
         error('Error when checking certificate for domain ' . $name);
     }
-    
-    if (! Command::$result) {
-        continue;
-    }
 
     // issue new certificate
 
-    Command::exec('acme', [
-        'issue',
-        '--domains' => implode(':', array_keys($domains)),
-        '--path' => implode(':', array_values($domains)),
-        '--bits' => $certificate['bits'],
-    ]);
+    if (! Command::$result) {
+        Command::exec('acme', [
+            'issue',
+            '--domains' => implode(':', array_keys($domains)),
+            '--path' => implode(':', array_values($domains)),
+            '--bits' => $certificate['bits'],
+        ]);
 
-    if (Command::$result) {
-        rrmdir($path);
-        error('Error when issuing certificate for ' . $name);
-    }
+        if (Command::$result) {
+            rrmdir($path);
+            error('Error when issuing certificate for ' . $name);
+        }
 
-    // remove challenge directories
+        // remove challenge directories
+        foreach (array_unique(array_values($domains)) as $dir) {
+            rrmdir($dir . '/.well-known');
+        }
 
-    foreach (array_unique(array_values($domains)) as $dir) {
-        rrmdir($dir . '/.well-known');
+        // ensure installation of newly issued certificate
+        if (file_exists($path . '/installed')) {
+            unlink($path . '/installed');
+        }
     }
 
     // install certificate in cpanel for corresponding domains
+
+    if (file_exists($path . '/installed')) {
+        continue;
+    }
 
     $installDomains = array_unique(array_map(function ($domain) {
         // remove www prefix
@@ -211,9 +217,10 @@ foreach ($config['certificates'] as $certificate) {
         ]);
 
         if (Command::$result) {
-            rrmdir($path);
             error('Error when installing certificate for ' . $domain);
         }
+
+        touch($path . '/installed');
     }
 
     $success[] = 'Certificate issued and installed for domains: ' . implode(', ', array_keys($domains)) . '.';
