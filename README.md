@@ -3,19 +3,26 @@ PHP script for automatic issuing and renewal of [Let's Encrypt](https://letsencr
 
 ## Credits
 
-This script is in fact a wrapper for two other
+This script is in fact a wrapper for two other:
 
 - https://github.com/kelunik/acme-client
 - https://github.com/neurobin/sslic
 
 Especially `acme-client` and [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/) greatly inspired development. Thanks to the authors!
 
+## Requirements
+
+- Access to CPanel
+- Access to server via SSH
+- PHP 5.4 or higher
+
 ## Installation
 
-We use composer, so we can easily install all dependencies:
+We will use [composer](https://getcomposer.org/) to easily install all dependencies.
+First we connect to our server with SSH and then:
 
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/imbrish/letsencrypt
 
 # Navigate to repository folder
@@ -24,7 +31,7 @@ cd letsencrypt
 # Install dependencies
 composer install
 
-# Set up config file
+# Create the config file, should be customized afterwards
 cp config.yml.example config.yml
 
 # Allow only owner to access the config
@@ -92,7 +99,7 @@ chmod 775 bin/letsencrypt
 bin/letsencrypt
 ```
 
-Alternatively script using `php`:
+Alternatively use `php`:
 
 ```bash
 php bin/letsencrypt
