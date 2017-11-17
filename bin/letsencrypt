@@ -199,7 +199,7 @@ foreach ($config['certificates'] as $certificate) {
     // issue new certificate
 
     if (Command::$result == 0) {
-        $climate->out('Certificate still valid for domains: ' . implode(', ', $domainNames) . '.');
+        $climate->info('Certificate still valid for domains: ' . implode(', ', $domainNames) . '.');
     }
     else {
         Command::exec('acme', [
@@ -226,7 +226,7 @@ foreach ($config['certificates'] as $certificate) {
 
         $notifications[] = 'Certificate issued for domains: ' . implode(', ', $domainNames) . '.';
 
-        $climate->out(end($notifications));
+        $climate->info(end($notifications));
     }
 
     // install certificate in cpanel for corresponding domains
@@ -273,7 +273,7 @@ foreach ($config['certificates'] as $certificate) {
     if ($installDomains) {
         $notifications[] = 'Certificate installed for domains: ' . implode(', ', $installDomains) . '.';
 
-        $climate->out(end($notifications));
+        $climate->info(end($notifications));
     }
 }
 
@@ -281,5 +281,5 @@ if ($notifications) {
     notify('New certificates have been issued', implode(PHP_EOL, $notifications));
 }
 else {
-    $climate->out('No certificates were issued.');
+    $climate->info('No certificates were issued.');
 }

@@ -134,13 +134,11 @@ class Command {
 
         // save and show command output together with error log
         static::$output = implode(PHP_EOL, $output) . (trim($error_log) ? $error_log : '');
+        static::$output = preg_replace('/^[\t ]+/', '', trim(static::$output));
 
-        // ensure that output ends with a newline
-        if (trim(static::$output) && ! preg_match('/(\n|\r\n)[\t ]*$/', static::$output)) {
-            static::$output .= PHP_EOL;
+        if (static::$output) {
+            echo static::$output . PHP_EOL;
         }
-
-        echo static::$output;
 
         // save and return last result code
         static::$result = $code;
