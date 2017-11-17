@@ -35,6 +35,13 @@ cpanel:
     user: example
     password: secret
 
+# List of domains for which certificates will be installed in cpanel.
+# The www prefix should be omitted as it is trimmed for installation.
+install:
+    include: false
+    exclude:
+        - sub.example.com
+
 # Custom nameserver ip used by "acme issue" command
 # For example google public dns "8.8.8.8" or "8.8.4.4"
 nameserver: false

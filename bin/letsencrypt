@@ -228,12 +228,22 @@ foreach ($config['certificates'] as $certificate) {
         continue;
     }
 
-    $installDomains = array_unique(array_map(function ($domain) {
+    $installDomains = array_map(function ($domain) {
         // remove www prefix
         return substr(strtolower($domain), 0, 4) == 'www.'
             ? substr($domain, 4)
             : $domain;
-    }, $domainNames));
+    }, $domainNames);
+
+    if (is_array($whitelist = $config['install']['whitelist'])) {
+        $installDomains = array_intersect($installDomains, $whitelist);
+    }
+
+    if (is_array($blacklist = $config['install']['blacklist'])) {
+        $installDomains = array_diff($installDomains, $blacklist);
+    }
+
+    $installDomains = array_unique($installDomains);
 
     foreach ($installDomains as $domain) {
         Command::exec('sslic', [
@@ -250,7 +260,8 @@ foreach ($config['certificates'] as $certificate) {
         touch($path . '/installed');
     }
 
-    $success[] = 'Certificate issued and installed for domains: ' . implode(', ', $domainNames) . '.';
+    $success[] = 'Certificate issued for domains: ' . implode(', ', $domainNames)
+        . PHP_EOL . 'Then installed for domains: ' . implode(', ', $installDomains) . '.';
 
     $climate->out(end($success));
 }
