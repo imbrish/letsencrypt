@@ -83,8 +83,8 @@ cpanel:
 # List of domains for which certificates will be installed in cpanel.
 # The www prefix should be omitted as it is trimmed for installation.
 install:
-    include: false
-    exclude:
+    whitelist:
+    blacklist:
         - sub.example.com
 
 # Custom nameserver ip used by "acme issue" command
