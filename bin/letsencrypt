@@ -164,7 +164,7 @@ if (Command::$result != 0) {
 
 // check, issue and setup certificates
 
-$success = [];
+$notifications = [];
 
 foreach ($config['certificates'] as $certificate) {
     // extract domains array
@@ -198,7 +198,10 @@ foreach ($config['certificates'] as $certificate) {
 
     // issue new certificate
 
-    if (Command::$result != 0) {
+    if (Command::$result == 0) {
+        $climate->out('Certificate still valid for domains: ' . implode(', ', $domainNames) . '.');
+    }
+    else {
         Command::exec('acme', [
             'issue',
             '--domains' => implode(':', $domainNames),
@@ -217,16 +220,16 @@ foreach ($config['certificates'] as $certificate) {
         }
 
         // ensure installation of newly issued certificate
-        if (file_exists($path . '/installed')) {
-            unlink($path . '/installed');
+        foreach (glob($path . '/installed.*') as $marker) {
+            unlink($marker);
         }
+
+        $notifications[] = 'Certificate issued for domains: ' . implode(', ', $domainNames) . '.';
+
+        $climate->out(end($notifications));
     }
 
     // install certificate in cpanel for corresponding domains
-
-    if (file_exists($path . '/installed')) {
-        continue;
-    }
 
     $installDomains = array_map(function ($domain) {
         // remove www prefix
@@ -246,6 +249,10 @@ foreach ($config['certificates'] as $certificate) {
     $installDomains = array_unique($installDomains);
 
     foreach ($installDomains as $domain) {
+        if (file_exists($path . '/installed.' . $domain)) {
+            continue;
+        }
+
         Command::exec('sslic', [
             $domain,
             $path . '/cert.pem',
@@ -257,17 +264,21 @@ foreach ($config['certificates'] as $certificate) {
             error('Error when installing certificate for ' . $domain);
         }
 
-        touch($path . '/installed');
+        if (file_exists($path)) {
+            // prevent installing same certificate for same domain again in the future
+            touch($path . '/installed.' . $domain);
+        }
     }
 
-    $success[] = 'Certificate issued for domains: ' . implode(', ', $domainNames)
-        . PHP_EOL . 'Then installed for domains: ' . implode(', ', $installDomains) . '.';
+    if ($installDomains) {
+        $notifications[] = 'Certificate installed for domains: ' . implode(', ', $installDomains) . '.';
 
-    $climate->out(end($success));
+        $climate->out(end($notifications));
+    }
 }
 
-if ($success) {
-    notify('New certificates have been issued', implode(PHP_EOL, $success));
+if ($notifications) {
+    notify('New certificates have been issued', implode(PHP_EOL, $notifications));
 }
 else {
     $climate->out('No certificates were issued.');
