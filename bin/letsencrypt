@@ -167,7 +167,6 @@ if (Command::$result != 0) {
 $success = [];
 
 foreach ($config['certificates'] as $certificate) {
-
     // extract domains array
 
     $domains = [];
@@ -178,7 +177,10 @@ foreach ($config['certificates'] as $certificate) {
         }
     }
 
-    $name = array_keys($domains)[0];
+    $domainNames = array_keys($domains);
+    $domainPaths = array_values($domains);
+
+    $name = $domainNames[0];
     $path = $config['certs'] . '/' . $name;
 
     // check whether certificate should be renewed
@@ -187,7 +189,7 @@ foreach ($config['certificates'] as $certificate) {
         'check',
         '--name' => $name,
         '--ttl' => $config['renew'],
-        '--names' => implode(',', array_keys($domains)),
+        '--names' => implode(',', $domainNames),
     ]);
 
     if (Command::$result == 255) {
@@ -199,13 +201,13 @@ foreach ($config['certificates'] as $certificate) {
     if (Command::$result != 0) {
         Command::exec('acme', [
             'issue',
-            '--domains' => implode(':', array_keys($domains)),
-            '--path' => implode(':', array_values($domains)),
+            '--domains' => implode(':', $domainNames),
+            '--path' => implode(':', $domainPaths),
             '--bits' => $certificate['bits'],
         ]);
 
         // remove challenge directories
-        foreach (array_unique(array_values($domains)) as $dir) {
+        foreach (array_unique($domainPaths) as $dir) {
             rrmdir($dir . '/.well-known');
         }
 
@@ -231,7 +233,7 @@ foreach ($config['certificates'] as $certificate) {
         return substr(strtolower($domain), 0, 4) == 'www.'
             ? substr($domain, 4)
             : $domain;
-    }, array_keys($domains)));
+    }, $domainNames));
 
     foreach ($installDomains as $domain) {
         Command::exec('sslic', [
@@ -248,7 +250,7 @@ foreach ($config['certificates'] as $certificate) {
         touch($path . '/installed');
     }
 
-    $success[] = 'Certificate issued and installed for domains: ' . implode(', ', array_keys($domains)) . '.';
+    $success[] = 'Certificate issued and installed for domains: ' . implode(', ', $domainNames) . '.';
 
     $climate->out(end($success));
 }
