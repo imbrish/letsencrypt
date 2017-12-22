@@ -99,7 +99,7 @@ file_put_contents($path, $content);
 
 Command::$aliases = [
     'acme' => $config['base'] . '/bin/acme',
-    'sslic' => $config['base'] . '/vendor/neurobin/sslic/sslic.php',
+    'sslic' => $config['base'] . '/vendor/ronindesign/sslic/sslic.php',
 ];
 
 Command::$defaults = [
