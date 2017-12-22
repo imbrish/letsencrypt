@@ -931,12 +931,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ronindesign/sslic.git",
-                "reference": "78898ad71e1d46e8c8fee9bcd1c108963c8c2666"
+                "reference": "cca30bfb86b736888875ed7f04f7df1b9c51eaf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ronindesign/sslic/zipball/78898ad71e1d46e8c8fee9bcd1c108963c8c2666",
-                "reference": "78898ad71e1d46e8c8fee9bcd1c108963c8c2666",
+                "url": "https://api.github.com/repos/ronindesign/sslic/zipball/cca30bfb86b736888875ed7f04f7df1b9c51eaf4",
+                "reference": "cca30bfb86b736888875ed7f04f7df1b9c51eaf4",
                 "shasum": ""
             },
             "type": "library",
@@ -962,7 +962,7 @@
             "support": {
                 "source": "https://github.com/ronindesign/sslic/tree/master"
             },
-            "time": "2017-12-22 13:02:41"
+            "time": "2017-12-22 13:27:48"
         },
         {
             "name": "sabre/uri",

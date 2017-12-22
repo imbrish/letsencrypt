@@ -78,6 +78,8 @@ $config['certs'] = $config['storage'] . '/certs/' . $dir;
 
 putenv('USER=' . $config['cpanel']['user']);
 putenv('PASS=' . $config['cpanel']['password']);
+if($config['cpanel']['token'])
+    putenv('TOKEN=' . $config['cpanel']['token']);
 
 // insert custom nameserver into 'acme issue' command
 // find resolve command, insert or replace nameserver if defined, remove otherwise
