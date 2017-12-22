@@ -1,4 +1,4 @@
-# Base directory for domain paths
+# Base directory for domain paths.
 home: /home/user
 
 # Server to use. URL to the ACME directory.
@@ -14,7 +14,7 @@ renew: 30
 # List of certificates to issue.
 certificates:
     # For each certificate, there are a few options.
-    # bits:    Number of bits for the domain private key
+    # bits:    Number of bits for the domain private key.
     # domains: Map of document roots to domains. Maps each path to one or multiple
     #          domains. If one domain is given, it's automatically converted to an
     #          array. The first domain will be the common name.
@@ -31,9 +31,12 @@ certificates:
 notify: me@example.com
 
 # CPanel credentials.
+# Token access only available with WHM access.
+# Regular 'shared hosting' cpanel account do not have this option.
 cpanel:
     user: example
     password: secret
+#    token: WHMTOKENGENERATED
 
 # List of domains for which certificates will be installed in cpanel.
 # The www prefix should be omitted as it is trimmed for installation.
@@ -42,6 +45,6 @@ install:
     blacklist:
         - sub.example.com
 
-# Custom nameserver ip used by "acme issue" command
-# For example google public dns "8.8.8.8" or "8.8.4.4"
+# Custom nameserver ip used by "acme issue" command.
+# For example google public dns "8.8.8.8" or "8.8.4.4".
 nameserver: false
