@@ -1,11 +1,11 @@
-# Base directory for domain paths
+# Base directory for domain paths.
 home: /home/user
 
-# Server to use. URL to the ACME directory.
-# "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
+# Server to use, "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
 server: letsencrypt
 
-# E-mail to use for the setup.
+# E-mail to use for the Let's Encrypt registration.
+# This e-mail will receive expiration notices from Let's Encrypt.
 email: me@example.com
 
 # Renew certificate if it expires within so many days.
@@ -14,7 +14,7 @@ renew: 30
 # List of certificates to issue.
 certificates:
     # For each certificate, there are a few options.
-    # bits:    Number of bits for the domain private key
+    # bits:    Number of bits for the domain private key.
     # domains: Map of document roots to domains. Maps each path to one or multiple
     #          domains. If one domain is given, it's automatically converted to an
     #          array. The first domain will be the common name.
@@ -27,21 +27,22 @@ certificates:
             - sub.example.com
             - www.sub.example.com
 
-# E-mail to send notifications.
+# E-mail to send notifications about errors or issued certificates.
+# Used only when command is executed with "-notify" or "-n" flag.
 notify: me@example.com
 
-# CPanel credentials.
+# CPanel credentials necessary to install certificates.
 cpanel:
     user: example
     password: secret
 
-# List of domains for which certificates will be installed in cpanel.
+# List of domains for which certificates will be installed in CPanel.
 # The www prefix should be omitted as it is trimmed for installation.
 install:
     whitelist:
     blacklist:
         - sub.example.com
 
-# Custom nameserver ip used by "acme issue" command
-# For example google public dns "8.8.8.8" or "8.8.4.4"
+# Custom nameserver IP used by "acme issue" command.
+# For example Google public DNS "8.8.8.8" or "8.8.4.4".
 nameserver: false
