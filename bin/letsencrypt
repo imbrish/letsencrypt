@@ -247,6 +247,7 @@ foreach ($config['certificates'] as $certificate) {
     }
 
     $installDomains = array_unique($installDomains);
+    $installedDomains = [];
 
     foreach ($installDomains as $domain) {
         if (file_exists($path . '/installed.' . $domain)) {
@@ -264,13 +265,19 @@ foreach ($config['certificates'] as $certificate) {
             error('Error when installing certificate for ' . $domain);
         }
 
+        $installedDomains[] = $domain;
+
         if (file_exists($path)) {
             // prevent installing same certificate for same domain again in the future
             touch($path . '/installed.' . $domain);
         }
     }
 
-    if ($installDomains) {
+    if ($skippedDomains = array_diff($installDomains, $installedDomains)) {
+        $climate->info('Certificate already installed for domains: ' . implode(', ', $skippedDomains) . '.');
+    }
+
+    if ($installedDomains) {
         $notifications[] = 'Certificate installed for domains: ' . implode(', ', $installDomains) . '.';
 
         $climate->info(end($notifications));
@@ -278,8 +285,8 @@ foreach ($config['certificates'] as $certificate) {
 }
 
 if ($notifications) {
-    notify('New certificates have been issued', implode(PHP_EOL, $notifications));
+    notify('New certificates have been issued and/or installed', implode(PHP_EOL, $notifications));
 }
 else {
-    $climate->info('No certificates were issued.');
+    $climate->info('No certificates were issued and/or installed.');
 }
