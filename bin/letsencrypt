@@ -224,9 +224,9 @@ foreach ($config['certificates'] as $certificate) {
             unlink($marker);
         }
 
-        $notifications[] = 'Certificate issued for domains: ' . implode(', ', $domainNames) . '.';
-
-        $climate->info(end($notifications));
+        $climate->info(
+            $notifications[] = 'Certificate issued for domains: ' . implode(', ', $domainNames) . '.'
+        );
     }
 
     // install certificate in cpanel for corresponding domains
@@ -278,9 +278,9 @@ foreach ($config['certificates'] as $certificate) {
     }
 
     if ($installedDomains) {
-        $notifications[] = 'Certificate installed for domains: ' . implode(', ', $installDomains) . '.';
-
-        $climate->info(end($notifications));
+        $climate->info(
+            $notifications[] = 'Certificate installed for domains: ' . implode(', ', $installDomains) . '.'
+        );
     }
 }
 
