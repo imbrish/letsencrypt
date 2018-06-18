@@ -43,17 +43,17 @@ chmod 600 config.yml
 Domains for certificate should be defined in the `config.yml`:
 
 ```yml
-# Base directory for domain paths.
+# Base directory for document roots in the certificates section.
 home: /home/user
 
 # Server to use, "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
 server: letsencrypt
 
-# E-mail to use for the Let's Encrypt registration.
-# This e-mail will receive expiration notices from Let's Encrypt.
+# E-mail to use for the Let's Encrypt registration. This e-mail will receive
+# certificate expiration notices from Let's Encrypt.
 email: me@example.com
 
-# Renew certificate if it expires within so many days.
+# Renew a certificate if it is due to expire within so many days.
 renew: 30
 
 # List of certificates to issue.
@@ -72,24 +72,26 @@ certificates:
             - sub.example.com
             - www.sub.example.com
 
-# E-mail to send notifications about errors or issued certificates.
-# Used only when command is executed with "-notify" or "-n" flag.
+# E-mail to notify about errors or certificates issued during the execution.
+# Used only when command is called with a "-notify" or "-n" flag.
 notify: me@example.com
 
-# CPanel credentials necessary to install certificates.
+# CPanel credentials necessary to install the certificates.
+# Do not share your configuration file after filling this!
 cpanel:
     user: example
     password: secret
 
-# List of domains for which certificates will be installed in CPanel.
-# The www prefix should be omitted as it is trimmed for installation.
+# By default certificates will be installed in CPanel for all domains listed above.
+# Domains can be filtered by a whitelist of names to accept and/or blacklist to reject.
+# The www prefix should be omitted as it is trimmed before installation.
 install:
     whitelist:
     blacklist:
         - sub.example.com
 
-# Custom nameserver IP used by "acme issue" command.
-# For example Google public DNS "8.8.8.8" or "8.8.4.4".
+# Custom nameserver IP used by the "acme issue" command.
+# For example Google public DNS "8.8.8.8" or "8.8.4.4", or Cloudflare 1.1.1.1.
 nameserver: false
 ```
 
