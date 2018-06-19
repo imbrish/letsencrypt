@@ -48,19 +48,27 @@ $climate->arguments->add([
         'longPrefix'   => 'notify',
         'description'  => 'Send email notification about errors or issued certificates',
     ],
+    'config' => [
+        'prefix'       => 'c',
+        'longPrefix'   => 'config',
+        'description'  => 'Name of the configuration file including extension',
+        'defaultValue' => 'config.yml',
+    ],
 ]);
 
 $climate->arguments->parse();
 
 // load configuration
 
-if (! file_exists($config['base'] . '/config.yml')) {
+$path = $config['base'] . '/' . $climate->arguments->get('config');
+
+if (! file_exists($path)) {
     $climate->error('Config file could not be found!');
     exit(EX_CONFIG_NOT_FOUND);
 }
 
 try {
-    $yaml = Yaml::parse(file_get_contents($config['base'] . '/config.yml'));
+    $yaml = Yaml::parse(file_get_contents($path));
     $config = array_merge($yaml, $config);
 } catch (ParseException $e) {
     $climate->error('There was an error when parsing config file!');
