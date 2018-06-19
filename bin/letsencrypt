@@ -45,8 +45,7 @@ $climate->arguments->add([
     'notify' => [
         'prefix'       => 'n',
         'longPrefix'   => 'notify',
-        'description'  => 'Send notification to email defined in config file',
-        'noValue'      => true,
+        'description'  => 'Send email notification about errors or issued certificates',
     ],
 ]);
 
@@ -114,11 +113,13 @@ Command::$defaults = [
 function notify($subject, $message) {
     global $climate, $config;
 
-    if (! $climate->arguments->get('notify')) {
+    if (! $climate->arguments->defined('notify')) {
         return;
     }
 
-    mail($config['notify'], $subject, $message);
+    $address = $climate->arguments->get('notify') ?: $config['notify'];
+
+    mail($address, $subject, $message);
 }
 
 // report processing error
