@@ -18,14 +18,15 @@ const EX_NAMESERVER_HACK_ERROR = 11;
 
 // autoload and check environment
 
-$base = realpath(__DIR__ . '/..');
+$config['base'] = realpath(__DIR__ . '/..');
+$config['storage'] = $config['base'] . '/storage';
 
-if (! file_exists($base . '/vendor/autoload.php')) {
+if (! file_exists($config['base'] . '/vendor/autoload.php')) {
     echo 'You need to install the composer dependencies!' . PHP_EOL;
     exit(EX_AUTOLOAD_NOT_FOUND);
 }
 
-require $base . '/vendor/autoload.php';
+require $config['base'] . '/vendor/autoload.php';
 
 $climate = new CLImate;
 
@@ -53,20 +54,18 @@ $climate->arguments->parse();
 
 // load configuration
 
-if (! file_exists($base . '/config.yml')) {
+if (! file_exists($config['base'] . '/config.yml')) {
     $climate->error('Config file could not be found!');
     exit(EX_CONFIG_NOT_FOUND);
 }
 
 try {
-    $config = Yaml::parse(file_get_contents($base . '/config.yml'));
+    $yaml = Yaml::parse(file_get_contents($config['base'] . '/config.yml'));
+    $config = array_merge($yaml, $config);
 } catch (ParseException $e) {
     $climate->error('There was an error when parsing config file!');
     exit(EX_CONFIG_PARSING_ERROR);
 }
-
-$config['base'] = $base;
-$config['storage'] = $config['base'] . '/storage';
 
 $server = \Kelunik\AcmeClient\resolveServer($config['server']);
 $dir = \Kelunik\AcmeClient\serverToKeyname($server);
