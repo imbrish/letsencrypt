@@ -8,6 +8,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 // define exit codes
 
+const EX_SUCCESS               = 0;
 const EX_AUTOLOAD_NOT_FOUND    = 1;
 const EX_OPENSSL_NOT_FOUND     = 2;
 const EX_INVALID_SAPI          = 3;
@@ -42,6 +43,8 @@ if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 
 // define and parse arguments
 
+$climate->description('Automatic issuing and renewal of Let\'s Encrypt SSL certificates on shared hostings');
+
 $climate->arguments->add([
     'notify' => [
         'prefix'       => 'n',
@@ -54,9 +57,22 @@ $climate->arguments->add([
         'description'  => 'Name of the configuration file including extension',
         'defaultValue' => 'config.yml',
     ],
+    'help' => [
+        'prefix'       => 'h',
+        'longPrefix'   => 'help',
+        'description'  => 'Display this help message',
+        'noValue'      => true,
+    ],
 ]);
 
 $climate->arguments->parse();
+
+// display the help message
+
+if ($climate->arguments->defined('help')) {
+    $climate->usage();
+    exit(EX_SUCCESS);
+}
 
 // load configuration
 
