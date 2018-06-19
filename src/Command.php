@@ -55,9 +55,9 @@ class Command {
      */
     public static function exec($cmd, $args = [])
     {
-        $instance = new static($cmd, $args);
+        $command = new static($cmd, $args);
 
-        return $instance->__exec();
+        return $command();
     }
 
     /**
@@ -100,7 +100,7 @@ class Command {
      *
      * @return mixed
      */
-    public function __exec()
+    public function __invoke()
     {
         $parts = array_map('escapeshellarg', $this->parts);
 
