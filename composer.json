@@ -25,6 +25,7 @@
         }
     ],
     "require": {
+        "php": ">=5.4.0",
         "neurobin/sslic": "*",
 		"kelunik/acme-client": "^0.2.13"
     },
