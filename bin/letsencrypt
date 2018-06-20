@@ -190,17 +190,21 @@ if (Command::$result != 0) {
 
 $notifications = [];
 
-foreach ($config['certificates'] as $certificate) {
+foreach ((array) $config['certificates'] as $index => $certificate) {
     // extract domains array and certificate meta
 
     $domainNames = $domainPaths = [];
 
-    foreach ($certificate['domains'] as $path => $names) {
+    foreach ((array) $certificate['domains'] as $path => $names) {
         $domainPaths[] = $config['home'] . $path;
 
         foreach ((array) $names as $name) {
             $domainNames[] = $name;
         }
+    }
+
+    if (! $domainNames) {
+        error('Invalid domains for certificate ' . $index);
     }
 
     $name = $domainNames[0];
