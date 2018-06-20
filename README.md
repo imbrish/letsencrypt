@@ -8,7 +8,7 @@ This script is in fact a wrapper for two other:
 - https://github.com/kelunik/acme-client
 - https://github.com/neurobin/sslic
 
-Especially `acme-client` and [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/) greatly inspired development. Thanks to the authors!
+Particularly `kelunik/acme-client` and [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/) greatly inspired the development. Thanks to the authors!
 
 ## Requirements
 
@@ -103,9 +103,9 @@ install:
 
 ## Usage
 
-Certificates can be issued/renewed by running script manually.
+Certificates can be issued/renewed by running the command manually.
 
-Run script as executable:
+Run script as an executable:
 
 ```bash
 # Make the script executable
@@ -115,7 +115,7 @@ chmod 775 bin/letsencrypt
 bin/letsencrypt
 ```
 
-Alternatively use `php`:
+Alternatively use `php` to execute the script:
 
 ```bash
 php bin/letsencrypt
@@ -126,19 +126,16 @@ Then it will install newly issued certificates in all specified domains using CP
 
 It can also notify you about actions it took via email, if you wish so.
 
-Command line options:
-
-`-n`, `--notify` - Send email notification about errors or issued certificates
-
-`-c`, `--config` - Name of the configuration file including extension, by default `config.yml`
-
-`-h`, `--help` - Display the help message
-
 Command line arguments:
 
-Optional list of certificate common names to issue and install only a subset of certificates defined in the configuration file.
+| Option | Description |
+| --- | --- |
+| `-n`, `--notify` | Send email notification about errors or issued certificates |
+| `-c`, `--config` | Name of the configuration file including extension, by default `config.yml` |
+| `-h`, `--help` | Display the help message |
+| | Optional list of certificate common names to issue and install only <br> a subset of certificates defined in the configuration file. |
 
-For example to use configuration file `example.yml`, issue and install only certificate for `example.com` and send email notification to address defined in the config:
+For example to use configuration file `example.yml`, issue and install only certificate for `example.com` and send email notification to the address defined in the config:
 
 ```bash
 php bin/letsencrypt -c custom.yml -n -- example.com
