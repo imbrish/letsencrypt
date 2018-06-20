@@ -63,9 +63,18 @@ $climate->arguments->add([
         'description'  => 'Display this help message',
         'noValue'      => true,
     ],
+    'certificates' => [
+        'description'  => 'Common names of certificates to issue and install',
+    ],
 ]);
 
 $climate->arguments->parse();
+
+// extract certificates argument manually to allow multiple names
+
+$certificates = array_filter(array_slice($argv, 1), function ($arg) {
+    return substr($arg, 0, 1) !== '-';
+});
 
 // display the help message
 
@@ -209,6 +218,12 @@ foreach ((array) $config['certificates'] as $index => $certificate) {
 
     $name = $domainNames[0];
     $path = $config['certs'] . '/' . $name;
+
+    // skip if domains omitted in the certificates argument
+
+    if ($certificates && ! array_intersect($domainNames, $certificates)) {
+        continue;
+    }
 
     // check whether certificate should be renewed
 
