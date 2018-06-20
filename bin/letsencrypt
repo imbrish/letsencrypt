@@ -72,9 +72,24 @@ $climate->arguments->parse();
 
 // extract certificates argument manually to allow multiple names
 
-$certificates = array_filter(array_slice($argv, 1), function ($arg) {
-    return substr($arg, 0, 1) !== '-';
-});
+$certificates = [];
+$skipNext = false;
+
+for ($i = 1; $i < count($argv); $i++) {
+    if (in_array($argv[$i], ['-n', '--notify', '-c', '--config'])) {
+        $skipNext = true;
+    }
+    else if ($argv[$i] === '--') {
+        $certificates = [];
+        $skipNext = false;
+    }
+    else if ($skipNext) {
+        $skipNext = false;
+    }
+    else if (substr($argv[$i], 0, 1) !== '-') {
+        $certificates[] = $argv[$i];
+    }
+}
 
 // display the help message
 
