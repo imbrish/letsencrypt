@@ -164,7 +164,9 @@ function notify($subject, $message) {
         return;
     }
 
-    $address = $climate->arguments->get('notify') ?: $config['notify'];
+    // fix for CLImate assuming next option to be a value
+    $notify = $climate->arguments->get('notify');
+    $address = $notify && substr($notify, 0, 1) !== '-' ? $notify : $config['notify'];
 
     mail($address, $subject, $message);
 }
