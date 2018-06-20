@@ -47,6 +47,7 @@ Domains for certificate should be defined in the `config.yml`:
 home: /home/user
 
 # Server to use, "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
+# The latter can help when testing as it offers more lenient usage quotas.
 server: letsencrypt
 
 # E-mail to use for the Let's Encrypt registration. This e-mail will receive
