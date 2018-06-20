@@ -43,24 +43,21 @@ chmod 600 config.yml
 Domains for certificate should be defined in the `config.yml`:
 
 ```yml
-# Base directory for document roots in the certificates section.
-home: /home/user
-
 # Server to use, "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
 # The latter can help when testing as it offers more lenient usage quotas.
 server: letsencrypt
 
-# E-mail to use for the Let's Encrypt registration. This e-mail will receive
-# certificate expiration notices from Let's Encrypt.
-email: me@example.com
+# Custom nameserver IP used by the "acme issue" command.
+# For example Google public DNS "8.8.8.8" or "8.8.4.4", or Cloudflare 1.1.1.1.
+nameserver: false
 
-# Renew a certificate if it is due to expire within so many days.
-renew: 30
+# Base directory for certificate document roots.
+home: /home/user
 
-# List of certificates to issue.
+# List of separate certificates to issue and install.
 certificates:
-    # For each certificate, there are a few options.
-    # bits:    Number of bits for the domain private key.
+    # For each certificate, there are a few options:
+    # bits:    Number of bits for the domain private key, from 2048 to 4096.
     # domains: Map of document roots to domains. Maps each path to one or multiple
     #          domains. If one domain is given, it's automatically converted to an
     #          array. The first domain will be the common name.
@@ -72,6 +69,18 @@ certificates:
         /sub/public_html:
             - sub.example.com
             - www.sub.example.com
+    - bits: 2048
+      domains:
+        /another/public_html:
+            - another.com
+            - www.another.com
+
+# Renew a certificate if it is due to expire within so many days.
+renew: 30
+
+# E-mail to use for the Let's Encrypt registration. This e-mail will receive
+# certificate expiration notices from Let's Encrypt.
+email: me@example.com
 
 # E-mail to notify about errors or certificates issued during the execution.
 # Used only when command is called with a "-notify" or "-n" flag.
@@ -85,15 +94,11 @@ cpanel:
 
 # By default certificates will be installed in CPanel for all domains listed above.
 # Domains can be filtered by a whitelist of names to accept and/or blacklist to reject.
-# The www prefix should be omitted as it is trimmed before installation.
+# The www prefix should be omitted because it is trimmed before the installation.
 install:
     whitelist:
     blacklist:
         - sub.example.com
-
-# Custom nameserver IP used by the "acme issue" command.
-# For example Google public DNS "8.8.8.8" or "8.8.4.4", or Cloudflare 1.1.1.1.
-nameserver: false
 ```
 
 ## Usage
@@ -124,8 +129,20 @@ It can also notify you about actions it took via email, if you wish so.
 Command line options:
 
 `-n`, `--notify` - Send email notification about errors or issued certificates
-`-c`, `--config` - Name of the configuration file including extension
+
+`-c`, `--config` - Name of the configuration file including extension, by default `config.yml`
+
 `-h`, `--help` - Display the help message
+
+Command line arguments:
+
+Optional list of certificate common names to issue and install only a subset of certificates defined in the configuration file.
+
+For example to use configuration file `example.yml`, issue and install only certificate for `example.com` and send email notification to address defined in the config:
+
+```bash
+php bin/letsencrypt -c custom.yml -n -- example.com
+```
 
 ## Cron job
 
@@ -146,6 +163,10 @@ which php
 ## Todo
 
 - Make script standalone
+
     + Use https://github.com/mgufrone/cpanel-php to communicate with CPanel API directly
     + Use https://github.com/kelunik/acme to issue certificates
+
 - Improve output, errors and emails
+- Refactor command logic into a separate class
+- Switch to https://github.com/symfony/console or similar due to issues with https://github.com/thephpleague/climate
