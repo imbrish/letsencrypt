@@ -72,11 +72,27 @@ $climate->arguments->parse();
 
 // extract certificates argument manually to allow multiple names
 
+$skipNextAfter = [];
+
+foreach ($climate->arguments->all() as $argument) {
+    if ($argument->noValue()) {
+        continue;
+    }
+
+    if ($prefix = $argument->prefix()) {
+        $skipNextAfter[] = '-'.$prefix;
+    }
+
+    if ($prefix = $argument->longPrefix()) {
+        $skipNextAfter[] = '--'.$prefix;
+    }
+}
+
 $certificates = [];
 $skipNext = false;
 
 for ($i = 1; $i < count($argv); $i++) {
-    if (in_array($argv[$i], ['-n', '--notify', '-c', '--config'])) {
+    if (in_array($argv[$i], $skipNextAfter)) {
         $skipNext = true;
     }
     else if ($argv[$i] === '--') {
