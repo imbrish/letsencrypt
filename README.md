@@ -122,7 +122,9 @@ It can also notify you about actions it took via email, if you wish so.
 
 Command line options:
 
-`-n`, `-notify` - Send email notification about errors or issued certificates
+`-n`, `--notify` - Send email notification about errors or issued certificates
+`-c`, `--config` - Name of the configuration file including extension
+`-h`, `--help` - Display the help message
 
 ## Cron job
 
