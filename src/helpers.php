@@ -13,10 +13,10 @@ function sendNotification($subject, $message) {
 
     $address = $climate->arguments->get('notify') ?: $config['notify'];
 
-    $result = @mail($address, $subject, $message);
+    $result = mail($address, $subject, $message);
 
     if (! $result) {
-    	$climate->shout('Failed to send email notification: ' . error_get_last()['message']);
+    	$climate->shout('Failed to send the email notification');
     }
 }
 
