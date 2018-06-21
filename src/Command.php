@@ -4,6 +4,13 @@ namespace Imbrish\LetsEncrypt;
 
 class Command {
     /**
+     * The CLImate instance.
+     * 
+     * @var \League\CLImate\CLImate
+     */
+    public static $climate;
+
+    /**
      * Command aliases.
      * 
      * @var array
@@ -105,47 +112,44 @@ class Command {
      */
     public function __invoke()
     {
-        $parts = array_map('escapeshellarg', $this->parts);
+        // escape command parts where necessary
+        $parts = array_map(function ($part) {
+            return strpos($part, ' ') === false ? $part : escapeshellarg($part);
+        }, $this->parts);
 
         // save and show what command is executed
         static::$last = implode(' ', $parts);
 
-        echo static::$last . PHP_EOL;
+        static::$climate->comment(static::$last);
 
         // temporary redirect error log to fetch its output after script execution
-        $log_path = __DIR__ . '/../logs.txt';
+        file_put_contents($logPath = __DIR__ . '/../logs.txt', '');
 
-        array_splice($parts, 1, 0, '-d error_log=' . escapeshellarg($log_path));
+        $logPath = realpath($logPath);
 
-        // tunnel error output to standard output
+        array_splice($parts, 1, 0, '-d errorLog=' . escapeshellarg($logPath));
+
+        // tunnel error output to the standard output
         $parts[] = '2>&1';
 
+        // run command storing its output and return code
         exec(implode(' ', $parts), $output, $code);
 
-        // get and erase temporary error log
-        if (file_exists($log_path)) {
-            $error_log = file_get_contents($log_path);
+        // get and erase temporary error log, remove dates from the logged errors
+        $errorLog = file_get_contents($logPath);
+        $errorLog = preg_replace('/^\[.+?\] /m', '', $errorLog);
 
-            // remove dates from the logged errors
-            $error_log = preg_replace('/^\[.+?\] /m', '', $error_log);
-
-            unlink($log_path);
-        }
-        else {
-            $error_log = null;
-        }
+        unlink($logPath);
 
         // save and show command output together with collected error logs
-        static::$output = implode(PHP_EOL, $output) . (trim($error_log) ? $error_log : '');
-        static::$output = preg_replace('/^[\t ]+/', '', trim(static::$output));
+        static::$output = rtrim(implode(PHP_EOL, $output)) . PHP_EOL . $errorLog;
+        static::$output = preg_replace('/^[\t ]+/m', '', trim(static::$output));
 
         if (static::$output) {
-            echo static::$output . PHP_EOL;
+            static::$climate->out(static::$output);
         }
 
-        // save and return last result code
-        static::$result = $code;
-
-        return $code;
+        // save and return last code
+        return static::$result = $code;
     }
 }

@@ -177,7 +177,9 @@ if (! $count) {
 
 file_put_contents($path, $content);
 
-// setup command class
+// setup the Command class
+
+Command::$climate = $climate;
 
 Command::$aliases = [
     'acme' => $config['base'] . '/bin/acme',
