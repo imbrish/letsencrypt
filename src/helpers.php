@@ -16,7 +16,7 @@ function sendNotification($subject, $message) {
     $result = mail($address, $subject, $message);
 
     if (! $result) {
-    	$climate->shout('Failed to send the email notification');
+    	$climate->to('error')->shout('Failed to send the email notification');
     }
 }
 
@@ -25,7 +25,7 @@ function sendNotification($subject, $message) {
 function reportErrorAndExit($message) {
     global $climate;
 
-    $climate->error($message);
+    $climate->to('error')->error($message);
 
     sendNotification($message, Command::$last . PHP_EOL . Command::$output);
 

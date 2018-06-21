@@ -41,12 +41,12 @@ if (getenv('ANSICON') !== false) {
 // check the environment
 
 if (! function_exists('openssl_pkey_get_private')) {
-	$climate->error('You need to enable OpenSSL in your php.ini!');
+	$climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
     exit(EX_OPENSSL_NOT_FOUND);
 }
 
 if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
-    $climate->error('Please run this script on the command line!');
+    $climate->to('error')->error('Please run this script on the command line!');
     exit(EX_INVALID_SAPI);
 }
 
@@ -79,7 +79,7 @@ set_error_handler(function ($severity, $message, $file, $line, $context) {
 
     $label = $labels[$severity] ?: "Error ($severity)";
 
-    $climate->shout("$label: $message in $file on line $line");
+    $climate->to('error')->shout("$label: $message in $file on line $line");
 
     return true;
 });
@@ -175,7 +175,7 @@ $name = $climate->arguments->get('config');
 $path = $config['base'] . '/' . $name;
 
 if (! file_exists($path)) {
-    $climate->error("Config file '$name' could not be found!");
+    $climate->to('error')->error("Config file '$name' could not be found!");
     exit(EX_CONFIG_NOT_FOUND);
 }
 
@@ -183,7 +183,7 @@ try {
     $yaml = Yaml::parse(file_get_contents($path));
     $config = array_merge($yaml, $config);
 } catch (ParseException $e) {
-    $climate->error('There was an error when parsing config file!');
+    $climate->to('error')->error('There was an error when parsing config file!');
     exit(EX_CONFIG_PARSING_ERROR);
 }
 
@@ -207,7 +207,7 @@ $replace = '$1' . ($config['nameserver'] ? '"server" => "' . $config['nameserver
 $content = preg_replace($search, $replace, file_get_contents($path), -1, $count);
 
 if (! $count) {
-    $climate->error("Could not replace nameserver used by 'acme issue' command.");
+    $climate->to('error')->error("Could not replace nameserver used by 'acme issue' command.");
     exit(EX_NAMESERVER_HACK_ERROR);
 }
 
@@ -267,7 +267,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     // extract certificate meta
 
     if (! $domainNames) {
-        $climate->error('Invalid config, domains for certificate not defined');
+        $climate->to('error')->error('Invalid config, domains for certificate not defined');
         exit(EX_INVALID_CONFIG);
     }
 
