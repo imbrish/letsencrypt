@@ -17,7 +17,7 @@ const EX_CONFIG_PARSING_ERROR  = 5;
 const EX_PROCESSING_ERROR      = 6;
 const EX_NAMESERVER_HACK_ERROR = 11;
 
-// autoload and check environment
+// autoload and initialize CLImate
 
 $config['base'] = realpath(__DIR__ . '/..');
 $config['storage'] = $config['base'] . '/storage';
@@ -30,6 +30,14 @@ if (! file_exists($config['base'] . '/vendor/autoload.php')) {
 require $config['base'] . '/vendor/autoload.php';
 
 $climate = new CLImate;
+
+// correctly detect ANSI support when using shell on Windows
+
+if (getenv('ANSICON') !== false) {
+    $climate->forceAnsiOn();
+}
+
+// check the environment
 
 if (! function_exists('openssl_pkey_get_private')) {
 	$climate->error('You need to enable OpenSSL in your php.ini!');
