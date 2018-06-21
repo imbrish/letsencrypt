@@ -246,7 +246,7 @@ $notifications = [];
 
 foreach ((array) $config['certificates'] as $certificate) {
 
-    // extract domains array and certificate meta
+    // extract domain paths and names
 
     $domainNames = $domainPaths = [];
 
@@ -258,19 +258,25 @@ foreach ((array) $config['certificates'] as $certificate) {
         }
     }
 
+    // skip if domains omitted in the certificates argument
+
+    if ($certificates && ! array_intersect($domainNames, $certificates)) {
+        continue;
+    }
+
+    // extract certificate meta
+
     if (! $domainNames) {
         $climate->error('Invalid config, domains for certificate not defined');
         exit(EX_INVALID_CONFIG);
     }
 
     $name = $domainNames[0];
+    $domains = implode(', ', $domainNames);
+
     $path = $config['certs'] . '/' . $name;
 
-    // skip if domains omitted in the certificates argument
-
-    if ($certificates && ! array_intersect($domainNames, $certificates)) {
-        continue;
-    }
+    $climate->info("Processing certificate $name ($domains)...");
 
     // check whether certificate should be renewed
 
@@ -282,13 +288,13 @@ foreach ((array) $config['certificates'] as $certificate) {
     ]);
 
     if (Command::$result == 255) {
-        reportErrorAndExit('Error when checking certificate for ' . $name);
+        reportErrorAndExit("Error when checking certificate $name.");
     }
 
     // issue new certificate
 
     if (Command::$result == 0) {
-        $climate->info('Certificate still valid for domains: ' . implode(', ', $domainNames) . '.');
+        $climate->info("Certificate still valid for domains: $domains.");
     }
     else {
         Command::exec('acme', [
@@ -300,10 +306,10 @@ foreach ((array) $config['certificates'] as $certificate) {
 
         if (Command::$result != 0) {
             removeDirectory($path);
-            reportErrorAndExit('Error when issuing certificate for ' . $name);
+            reportErrorAndExit("Error when issuing certificate $name.");
         }
 
-        // remove challenge directories only when command succeeds to simplify debugging
+        // remove challenge directories only when command succeeds
 
         foreach (array_unique($domainPaths) as $dir) {
             removeDirectory($dir . '/.well-known');
@@ -316,7 +322,7 @@ foreach ((array) $config['certificates'] as $certificate) {
         }
 
         $climate->info(
-            $notifications[] = 'Certificate issued for domains: ' . implode(', ', $domainNames) . '.'
+            $notifications[] = "Certificate issued for domains: $domains."
         );
     }
 
@@ -334,11 +340,12 @@ foreach ((array) $config['certificates'] as $certificate) {
         $installDomains = array_diff($installDomains, $blacklist);
     }
 
-    $installDomains = array_unique($installDomains);
+    $skippedDomains = [];
     $installedDomains = [];
 
-    foreach ($installDomains as $domain) {
+    foreach (array_unique($installDomains) as $domain) {
         if (file_exists($path . '/installed.' . $domain)) {
+            $skippedDomains[] = $domain;
             continue;
         }
 
@@ -362,19 +369,19 @@ foreach ((array) $config['certificates'] as $certificate) {
         }
     }
 
-    if ($skippedDomains = array_diff($installDomains, $installedDomains)) {
-        $climate->info('Certificate already installed for domains: ' . implode(', ', $skippedDomains) . '.');
+    if ($skippedDomains = implode(', ', $skippedDomains)) {
+        $climate->info("Certificate already installed for domains: $skippedDomains.");
     }
 
-    if ($installedDomains) {
+    if ($installedDomains = implode(', ', $installedDomains)) {
         $climate->info(
-            $notifications[] = 'Certificate installed for domains: ' . implode(', ', $installDomains) . '.'
+            $notifications[] = "Certificate installed for domains: $installedDomains."
         );
     }
 }
 
 if ($notifications) {
-    sendNotification('New certificates have been issued and/or installed', implode(PHP_EOL, $notifications));
+    sendNotification('New certificates were issued and/or installed', implode(PHP_EOL, $notifications));
 }
 else {
     $climate->info('No certificates were issued and/or installed.');
