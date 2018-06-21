@@ -32,7 +32,10 @@
     "autoload": {
         "psr-4": {
             "Imbrish\\LetsEncrypt\\": "src"
-        }
+        },
+        "files" : [
+            "src/helpers.php"
+        ]
     },
     "scripts": {
         "post-install-cmd": [
