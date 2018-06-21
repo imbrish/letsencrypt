@@ -203,7 +203,7 @@ Command::exec('acme', [
 ]);
 
 if (Command::$result != 0) {
-    error('Failed to setup acme client');
+    reportErrorAndExit('Failed to setup acme client');
 }
 
 // check, issue and setup certificates
@@ -248,7 +248,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     ]);
 
     if (Command::$result == 255) {
-        error('Error when checking certificate for ' . $name);
+        reportErrorAndExit('Error when checking certificate for ' . $name);
     }
 
     // issue new certificate
@@ -265,14 +265,14 @@ foreach ((array) $config['certificates'] as $certificate) {
         ]);
 
         if (Command::$result != 0) {
-            rrmdir($path);
-            error('Error when issuing certificate for ' . $name);
+            removeDirectory($path);
+            reportErrorAndExit('Error when issuing certificate for ' . $name);
         }
 
         // remove challenge directories only when command succeeds to simplify debugging
 
         foreach (array_unique($domainPaths) as $dir) {
-            rrmdir($dir . '/.well-known');
+            removeDirectory($dir . '/.well-known');
         }
 
         // ensure installation of newly issued certificate
@@ -316,7 +316,7 @@ foreach ((array) $config['certificates'] as $certificate) {
         ]);
 
         if (Command::$result != 0) {
-            error('Error when installing certificate for ' . $domain);
+            reportErrorAndExit('Error when installing certificate for ' . $domain);
         }
 
         $installedDomains[] = $domain;
@@ -340,7 +340,7 @@ foreach ((array) $config['certificates'] as $certificate) {
 }
 
 if ($notifications) {
-    notify('New certificates have been issued and/or installed', implode(PHP_EOL, $notifications));
+    sendNotification('New certificates have been issued and/or installed', implode(PHP_EOL, $notifications));
 }
 else {
     $climate->info('No certificates were issued and/or installed.');

@@ -4,7 +4,7 @@ use Imbrish\LetsEncrypt\Command;
 
 // send email notification
 
-function notify($subject, $message) {
+function sendNotification($subject, $message) {
     global $climate, $config;
 
     if (! $climate->arguments->defined('notify')) {
@@ -16,12 +16,12 @@ function notify($subject, $message) {
     mail($address, $subject, $message);
 }
 
-// report processing error
+// report processing error and exit
 
-function error($message) {
+function reportErrorAndExit($message) {
     global $climate;
 
-    notify($message, Command::$last . PHP_EOL . Command::$output);
+    sendNotification($message, Command::$last . PHP_EOL . Command::$output);
 
     $climate->error($message);
     exit(EX_PROCESSING_ERROR);
@@ -29,14 +29,14 @@ function error($message) {
 
 // recursively remove directory
 
-function rrmdir($dir) {
+function removeDirectory($dir) {
     if (! is_dir($dir)) {
         return;
     }
 
     foreach (array_diff(scandir($dir), ['.','..']) as $file) {
         if (is_dir($path = $dir . '/' . $file)) {
-            rrmdir($path);
+            removeDirectory($path);
         }
         else {
             unlink($path);
