@@ -15,6 +15,7 @@ const EX_INVALID_SAPI          = 3;
 const EX_CONFIG_NOT_FOUND      = 4;
 const EX_CONFIG_PARSING_ERROR  = 5;
 const EX_PROCESSING_ERROR      = 6;
+const EX_INVALID_CONFIG        = 7;
 const EX_NAMESERVER_HACK_ERROR = 11;
 
 // autoload and initialize CLImate
@@ -136,10 +137,11 @@ if ($climate->arguments->defined('help')) {
 
 // load configuration
 
-$path = $config['base'] . '/' . $climate->arguments->get('config');
+$name = $climate->arguments->get('config');
+$path = $config['base'] . '/' . $name;
 
 if (! file_exists($path)) {
-    $climate->error('Config file could not be found!');
+    $climate->error("Config file '$name' could not be found!");
     exit(EX_CONFIG_NOT_FOUND);
 }
 
@@ -252,7 +254,7 @@ if (Command::$result != 0) {
 
 $notifications = [];
 
-foreach ((array) $config['certificates'] as $index => $certificate) {
+foreach ((array) $config['certificates'] as $certificate) {
 
     // extract domains array and certificate meta
 
@@ -267,7 +269,8 @@ foreach ((array) $config['certificates'] as $index => $certificate) {
     }
 
     if (! $domainNames) {
-        error('Invalid domains for certificate ' . $index);
+        $climate->error('Invalid config, domains for certificate not defined');
+        exit(EX_INVALID_CONFIG);
     }
 
     $name = $domainNames[0];
