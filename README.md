@@ -12,7 +12,7 @@ Particularly `kelunik/acme-client` and [this article](https://neurobin.org/docs/
 
 ## Requirements
 
-- Access to CPanel
+- Access to cPanel and cPanel API
 - Access to server via SSH
 - PHP 5.4 or higher
 
@@ -51,16 +51,18 @@ server: letsencrypt
 # For example Google public DNS "8.8.8.8" or "8.8.4.4", or Cloudflare 1.1.1.1.
 nameserver: false
 
-# Base directory for certificate document roots.
+# Base directory of the certificate document roots.
 home: /home/user
 
-# List of separate certificates to issue and install.
+# List of certificates to issue and install, for each there are a few options:
+# bits:    Number of bits for the domain private key, from 2048 to 4096.
+# domains: Map of document roots to domains. Maps paths of challenge directories
+#          to the domains for which certificate should be issued. The very first
+#          domain will be the common name for the certificate and its directory.
 certificates:
-    # For each certificate, there are a few options:
-    # bits:    Number of bits for the domain private key, from 2048 to 4096.
-    # domains: Map of document roots to domains. Maps each path to one or multiple
-    #          domains. If one domain is given, it's automatically converted to an
-    #          array. The first domain will be the common name.
+    # This is the first certificate, common name and directory will be example.com.
+    # It will be issued for domains example.com and sub.example.com with www variants.
+    # The challenge files go to /home/user/public_html and /home/user/sub/public_html.
     - bits: 4096
       domains:
         /public_html:
@@ -69,6 +71,9 @@ certificates:
         /sub/public_html:
             - sub.example.com
             - www.sub.example.com
+    # This is the second certificate, common name and directory will be another.com.
+    # It will be issued for domain another.com with www variant. The challenge files
+    # go to /home/user/another/public_html.
     - bits: 2048
       domains:
         /another/public_html:
@@ -86,13 +91,13 @@ email: me@example.com
 # Used only when command is called with a "-notify" or "-n" flag.
 notify: me@example.com
 
-# CPanel credentials necessary to install the certificates.
+# The cPanel credentials necessary to install the certificates.
 # Do not share your configuration file after filling this!
 cpanel:
     user: example
     password: secret
 
-# By default certificates will be installed in CPanel for all domains listed above.
+# By default certificates will be installed in cPanel for all domains listed above.
 # Domains can be filtered by a whitelist of names to accept and/or blacklist to reject.
 # The www prefix should be omitted because it is trimmed before the installation.
 install:
@@ -122,7 +127,7 @@ php bin/letsencrypt
 ```
 
 Script will check if certificates should be renewed and issue/reissue them if so.
-Then it will install newly issued certificates in all specified domains using CPanel API.
+Then it will install newly issued certificates in all specified domains using cPanel API.
 
 It can also notify you about actions it took via email, if you wish so.
 
@@ -161,7 +166,7 @@ which php
 
 - Make script standalone
 
-    + Use https://github.com/mgufrone/cpanel-php to communicate with CPanel API directly
+    + Use https://github.com/mgufrone/cpanel-php to communicate with cPanel API directly
     + Use https://github.com/kelunik/acme to issue certificates
 
 - Improve output, errors and emails
