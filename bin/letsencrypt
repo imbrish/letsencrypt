@@ -11,24 +11,39 @@ use Symfony\Component\Yaml\Exception\ParseException;
 const EX_SUCCESS               = 0;
 const EX_AUTOLOAD_NOT_FOUND    = 1;
 const EX_OPENSSL_NOT_FOUND     = 2;
-const EX_INVALID_SAPI          = 3;
+const EX_SAPI_INVALID          = 3;
 const EX_CONFIG_NOT_FOUND      = 4;
 const EX_CONFIG_PARSING_ERROR  = 5;
 const EX_PROCESSING_ERROR      = 6;
-const EX_INVALID_CONFIG        = 7;
+const EX_CONFIG_INVALID        = 7;
+const EX_AUTOLOAD_OUTDATED     = 8;
 const EX_NAMESERVER_HACK_ERROR = 11;
 
-// autoload and initialize CLImate
+// define paths
 
 $config['base'] = realpath(__DIR__ . '/..');
 $config['storage'] = $config['base'] . '/storage';
 
+// check and require composer autoloader
+
+$message = "You need to install the composer dependencies, please run 'composer install'!" . PHP_EOL;
+
 if (! file_exists($config['base'] . '/vendor/autoload.php')) {
-    echo 'You need to install the composer dependencies!' . PHP_EOL;
+    echo $message;
     exit(EX_AUTOLOAD_NOT_FOUND);
 }
 
+$stored = file_exists($path = $config['storage'] . '/composer.hash') ? file_get_contents($path) : false;
+$actual = file_exists($path = $config['base'] . '/composer.json') ? md5(file_get_contents($path)) : false;
+
+if (! $stored || $stored !== $actual) {
+    echo $message;
+    exit(EX_AUTOLOAD_OUTDATED);
+}
+
 require $config['base'] . '/vendor/autoload.php';
+
+// initialize CLImate
 
 $climate = new CLImate;
 
@@ -47,7 +62,7 @@ if (! function_exists('openssl_pkey_get_private')) {
 
 if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
     $climate->to('error')->error('Please run this script on the command line!');
-    exit(EX_INVALID_SAPI);
+    exit(EX_SAPI_INVALID);
 }
 
 // register custom error handler
@@ -272,7 +287,7 @@ foreach ((array) $config['certificates'] as $certificate) {
 
     if (! $domainNames) {
         $climate->to('error')->error('Invalid config, domains for certificate not defined');
-        exit(EX_INVALID_CONFIG);
+        exit(EX_CONFIG_INVALID);
     }
 
     $name = $domainNames[0];

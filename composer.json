@@ -39,10 +39,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "Imbrish\\LetsEncrypt\\Composer::copyAcme"
+            "Imbrish\\LetsEncrypt\\Composer::handle"
         ],
         "post-update-cmd": [
-            "Imbrish\\LetsEncrypt\\Composer::copyAcme"
+            "Imbrish\\LetsEncrypt\\Composer::handle"
         ]
     }
 }
