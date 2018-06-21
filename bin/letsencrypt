@@ -246,17 +246,19 @@ $notifications = [];
 
 foreach ((array) $config['certificates'] as $certificate) {
 
-    // extract domain paths and names
+    // extract domain paths and names, we need to pass a path for every passed domain
+    // to avoid mixing things up when issue command will use last path for remaining domains
 
-    $domainNames = $domainPaths = [];
+    $domainsMap = [];
 
     foreach ((array) $certificate['domains'] as $path => $names) {
-        $domainPaths[] = $config['home'] . $path;
-
         foreach ((array) $names as $name) {
-            $domainNames[] = $name;
+            $domainsMap[$name] = $config['home'] . $path;
         }
     }
+
+    $domainNames = array_keys($domainsMap);
+    $domainPaths = array_values($domainsMap);
 
     // skip if domains omitted in the certificates argument
 
