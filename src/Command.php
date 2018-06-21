@@ -11,6 +11,13 @@ class Command {
     public static $climate;
 
     /**
+     * The configuration array.
+     * 
+     * @var array
+     */
+    public static $config;
+
+    /**
      * Command aliases.
      * 
      * @var array
@@ -25,6 +32,13 @@ class Command {
     public static $defaults = [];
 
     /**
+     * Last executed command.
+     * 
+     * @var string
+     */
+    public static $last;
+
+    /**
      * Result of last execution.
      * 
      * @var int
@@ -37,13 +51,6 @@ class Command {
      * @var string
      */
     public static $output;
-
-    /**
-     * Last executed command.
-     * 
-     * @var string
-     */
-    public static $last;
 
     /**
      * Flat array of commands parts.
@@ -122,24 +129,26 @@ class Command {
 
         static::$climate->comment(static::$last);
 
-        // temporary redirect error log to fetch its output after script execution
-        file_put_contents($logPath = __DIR__ . '/../logs.txt', '');
-
-        $logPath = realpath($logPath);
+        // redirect error log to fetch errors after execution
+        $logPath = static::$config['storage'] . '/error.log';
 
         array_splice($parts, 1, 0, '-d errorLog=' . escapeshellarg($logPath));
 
         // tunnel error output to the standard output
         $parts[] = '2>&1';
 
-        // run command storing its output and return code
+        // run command, store its output and return code
         exec(implode(' ', $parts), $output, $code);
 
         // get and erase temporary error log, remove dates from the logged errors
-        $errorLog = file_get_contents($logPath);
-        $errorLog = preg_replace('/^\[.+?\] /m', '', $errorLog);
+        if (file_exists($logPath)) {
+            $errorLog = preg_replace('/^\[.+?\] /m', '', file_get_contents($logPath));
 
-        unlink($logPath);
+            unlink($logPath);
+        }
+        else {
+            $errorLog = '';
+        }
 
         // save and show command output together with collected error logs
         static::$output = rtrim(implode(PHP_EOL, $output)) . PHP_EOL . $errorLog;

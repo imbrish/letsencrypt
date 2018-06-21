@@ -233,6 +233,7 @@ file_put_contents($path, $content);
 // setup the Command class
 
 Command::$climate = $climate;
+Command::$config = $config;
 
 Command::$aliases = [
     'acme' => $config['base'] . '/bin/acme',
