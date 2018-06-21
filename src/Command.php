@@ -70,22 +70,25 @@ class Command {
      */
     public function __construct($cmd, $args = [])
     {
+        // initialize command from alias or as given
         $this->parts = [
             PHP_BINARY,
             array_key_exists($cmd, static::$aliases) ? static::$aliases[$cmd] : $cmd,
         ];
 
+        // attach the default arguments
         if (array_key_exists($cmd, static::$defaults)) {
             foreach (static::$defaults[$cmd] as $key => $value) {
                 if (! is_int($key)) {
                     $args[$key] = $value;
                 }
                 else if (! in_array($value, $args)) {
-                    $args[$value];
+                    $args[] = $value;
                 }
             }
         }
 
+        // convert arguments into command parts
         foreach ($args as $key => $value) {
             if (! is_int($key)) {
                 $this->parts[] = $key;
@@ -114,7 +117,7 @@ class Command {
 
         array_splice($parts, 1, 0, '-d error_log=' . escapeshellarg($log_path));
 
-        // tunnels error output to standard output
+        // tunnel error output to standard output
         $parts[] = '2>&1';
 
         exec(implode(' ', $parts), $output, $code);
@@ -123,7 +126,7 @@ class Command {
         if (file_exists($log_path)) {
             $error_log = file_get_contents($log_path);
 
-            // remove dates
+            // remove dates from the logged errors
             $error_log = preg_replace('/^\[.+?\] /m', '', $error_log);
 
             unlink($log_path);
@@ -132,7 +135,7 @@ class Command {
             $error_log = null;
         }
 
-        // save and show command output together with error log
+        // save and show command output together with collected error logs
         static::$output = implode(PHP_EOL, $output) . (trim($error_log) ? $error_log : '');
         static::$output = preg_replace('/^[\t ]+/', '', trim(static::$output));
 
