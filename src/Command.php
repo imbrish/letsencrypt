@@ -151,8 +151,9 @@ class Command {
         }
 
         // save and show command output together with collected error logs
+        // remove leading whitespace from each line and empty lines
         static::$output = rtrim(implode(PHP_EOL, $output)) . PHP_EOL . $errorLog;
-        static::$output = preg_replace('/^[\t ]+/m', '', trim(static::$output));
+        static::$output = preg_replace('/^[\t ]*[\n\r]*/m', '', trim(static::$output));
 
         if (static::$output) {
             static::$climate->out(static::$output);
