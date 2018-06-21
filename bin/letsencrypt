@@ -52,6 +52,8 @@ if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 
 // register custom error handler
 
+ini_set('display_errors', '1');
+
 set_error_handler(function ($severity, $message, $file, $line, $context) {
     global $climate;
 
