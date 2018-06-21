@@ -294,14 +294,14 @@ foreach ((array) $config['certificates'] as $index => $certificate) {
             '--bits' => $certificate['bits'],
         ]);
 
-        // remove challenge directories
-        foreach (array_unique($domainPaths) as $dir) {
-            rrmdir($dir . '/.well-known');
-        }
-
         if (Command::$result != 0) {
             rrmdir($path);
             error('Error when issuing certificate for ' . $name);
+        }
+
+        // remove challenge directories only when command succeeds to simplify debugging
+        foreach (array_unique($domainPaths) as $dir) {
+            rrmdir($dir . '/.well-known');
         }
 
         // ensure installation of newly issued certificate
