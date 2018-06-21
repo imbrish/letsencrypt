@@ -13,7 +13,11 @@ function sendNotification($subject, $message) {
 
     $address = $climate->arguments->get('notify') ?: $config['notify'];
 
-    mail($address, $subject, $message);
+    $result = @mail($address, $subject, $message);
+
+    if (! $result) {
+    	$climate->shout('Failed to send email notification: ' . error_get_last()['message']);
+    }
 }
 
 // report processing error and exit
@@ -21,9 +25,10 @@ function sendNotification($subject, $message) {
 function reportErrorAndExit($message) {
     global $climate;
 
+    $climate->error($message);
+
     sendNotification($message, Command::$last . PHP_EOL . Command::$output);
 
-    $climate->error($message);
     exit(EX_PROCESSING_ERROR);
 }
 
