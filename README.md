@@ -1,25 +1,25 @@
 # letsencrypt
-PHP script for automatic issuing and renewal of [Let's Encrypt](https://letsencrypt.org/) SSL certificates on shared hostings.
+PHP script to automatically issue and renew [Let's Encrypt](https://letsencrypt.org/) SSL certificates on shared hostings.
 
 ## Credits
 
-This script is in fact a wrapper for two other:
+Development of the script was inspired by [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/).
 
-- https://github.com/kelunik/acme-client
-- https://github.com/neurobin/sslic
+Checking, issuing and renewal of certificates is handled using [`kelunik/acme-client`](https://github.com/kelunik/acme-client).
 
-Particularly `kelunik/acme-client` and [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/) greatly inspired the development. Thanks to the authors!
+Thanks to the authors!
 
 ## Requirements
 
-- Access to cPanel and cPanel API
-- Access to server via SSH
 - PHP 5.4 or higher
+- Access to server via SSH
+- Access to cPanel via UAPI
 
 ## Installation
 
-We will use [composer](https://getcomposer.org/) to easily install all dependencies.
-First we connect to our server with SSH and then:
+We will use [composer](https://getcomposer.org/) to easily install dependencies.
+
+First connect to the server with SSH and then:
 
 ```bash
 # Clone the repository
@@ -56,7 +56,7 @@ chmod 775 bin/letsencrypt
 
 ## Configuration
 
-Domains for certificate should be defined in the `config.yml`:
+All configuration should be placed in the `config.yml`:
 
 ```yml
 # Server to use, "letsencrypt" and "letsencrypt:staging" are valid shortcuts.
@@ -65,7 +65,7 @@ server: letsencrypt
 
 # Custom nameserver IP used by the "acme issue" command.
 # For example Google public DNS "8.8.8.8" or "8.8.4.4", or Cloudflare 1.1.1.1.
-nameserver: false
+nameserver: null
 
 # Base directory of the certificate document roots.
 home: /home/user
@@ -107,11 +107,9 @@ email: me@example.com
 # Used only when command is called with a "-notify" or "-n" flag.
 notify: me@example.com
 
-# The cPanel credentials necessary to install the certificates.
-# Do not share your configuration file after filling this!
-cpanel:
-    user: example
-    password: secret
+# The cPanel user for which certificates should be installed.
+# Necessary only when logged-in as a root.
+user: user
 
 # By default certificates will be installed in cPanel for all domains listed above.
 # Domains can be filtered by a whitelist of names to accept and/or blacklist to reject.
@@ -178,13 +176,10 @@ You can check path to CLI version of PHP by connecting to your hosting via SSH a
 which php
 ```
 
-## Todo
+## Alternatives
 
-- Make script standalone
+The [`Neilpang/acme.sh`](https://github.com/Neilpang/acme.sh) may be a more robust alternative. A few relevant guides:
 
-    + Use https://github.com/mgufrone/cpanel-php to communicate with cPanel API directly
-    + Use https://github.com/kelunik/acme to issue certificates
-
-- Improve output, errors and emails
-- Refactor command logic into a separate class
-- Switch to https://github.com/symfony/console or similar due to issues with https://github.com/thephpleague/climate
+- https://github.com/Neilpang/acme.sh/wiki/How-to-install
+- https://github.com/Neilpang/acme.sh/wiki/How-to-issue-a-cert
+- https://github.com/Neilpang/acme.sh/wiki/Simple-guide-to-add-TLS-cert-to-cpanel
