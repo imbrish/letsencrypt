@@ -18,6 +18,7 @@ const EX_PROCESSING_ERROR      = 6;
 const EX_CONFIG_INVALID        = 7;
 const EX_AUTOLOAD_OUTDATED     = 8;
 const EX_UAPI_NOT_FOUND        = 9;
+const EX_WINDOWS_NOT_SUPPORTED = 10;
 const EX_NAMESERVER_HACK_ERROR = 11;
 
 // define paths
@@ -56,14 +57,19 @@ if (getenv('ANSICON') !== false) {
 
 // check the environment
 
-if (! function_exists('openssl_pkey_get_private')) {
-	$climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
-    exit(EX_OPENSSL_NOT_FOUND);
-}
-
 if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
     $climate->to('error')->error('Please run this script on the command line!');
     exit(EX_SAPI_INVALID);
+}
+
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+    $climate->to('error')->error('Running this script on Windows is not supported!');
+    exit(EX_WINDOWS_NOT_SUPPORTED);
+}
+
+if (! function_exists('openssl_pkey_get_private')) {
+	$climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
+    exit(EX_OPENSSL_NOT_FOUND);
 }
 
 if (! $uapi = exec('which uapi 2>/dev/null')) {
