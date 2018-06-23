@@ -38,6 +38,22 @@ cp config.yml.example config.yml
 chmod 600 config.yml
 ```
 
+## Updating
+
+To update the script to the newest version:
+
+```bash
+# Pull changes from the repository
+git fetch
+git reset --hard origin/master
+
+# Install dependencies
+composer install
+
+# Optionally restore executable mode
+chmod 775 bin/letsencrypt
+```
+
 ## Configuration
 
 Domains for certificate should be defined in the `config.yml`:
