@@ -146,17 +146,17 @@ For example to use configuration file `example.yml`, issue and install only cert
 php bin/letsencrypt -c custom.yml -n -- example.com
 ```
 
-## Cron job
+## Automation
 
-Even more automation by setting up a cron job:
+Issuing, renewal and installation of certificates can be automated by setting up a cron job:
 
 ```
 0 0 * * * /path/to/php-cli /home/user/letsencrypt/bin/letsencrypt -n
 ```
 
-It will run the script every day at midnight.
+It will run the script every day at midnight and notify you about errors or issued certificates to an email defined in the configuration file.
 
-You can check path to cli version of php by connecting to your hosting via ssh and running:
+You can check path to CLI version of PHP by connecting to your hosting via SSH and running:
 
 ```bash
 which php
