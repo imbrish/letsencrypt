@@ -209,10 +209,39 @@ $dir = \Kelunik\AcmeClient\serverToKeyname($server);
 
 $config['certs'] = $config['storage'] . '/certs/' . $dir;
 
-// set environment variables
+// check if uapi command is available to access the cPanel API
 
-putenv('USER=' . $config['cpanel']['user']);
-putenv('PASS=' . $config['cpanel']['password']);
+$win = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+define('UAPI_BINARY', exec($win ? 'where uapi 2>nul' : 'which uapi 2>/dev/null'));
+
+// set environmental variables used by sslic
+
+if (! UAPI_BINARY) {
+    putenv('USER=' . $config['cpanel']['user']);
+    putenv('PASS=' . $config['cpanel']['password']);
+}
+
+// setup the Command class
+
+Command::$config = $config;
+Command::$climate = $climate;
+
+Command::$aliases = [
+    'acme'  => [
+        PHP_BINARY,
+        $config['base'] . '/bin/acme',
+    ],
+    'sslic' => [
+        PHP_BINARY,
+        $config['base'] . '/vendor/neurobin/sslic/sslic.php',
+    ],
+    'uapi' => [
+        UAPI_BINARY,
+        'SSL',
+        'install_ssl',
+    ],
+];
 
 // insert custom nameserver into 'acme issue' command
 // find resolve command, insert or replace nameserver if defined, remove otherwise
@@ -229,22 +258,6 @@ if (! $count) {
 }
 
 file_put_contents($path, $content);
-
-// setup the Command class
-
-Command::$config = $config;
-Command::$climate = $climate;
-
-Command::$aliases = [
-    'acme'  => [
-        PHP_BINARY,
-        $config['base'] . '/bin/acme',
-    ],
-    'sslic' => [
-        PHP_BINARY,
-        $config['base'] . '/vendor/neurobin/sslic/sslic.php',
-    ],
-];
 
 // register a certification account
 
@@ -374,12 +387,22 @@ foreach ((array) $config['certificates'] as $certificate) {
             continue;
         }
 
-        Command::exec('sslic', [
-            $domain,
-            $path . '/cert.pem',
-            $path . '/key.pem',
-            $path . '/chain.pem',
-        ]);
+        if (UAPI_BINARY) {
+            Command::exec('uapi', [
+                'domain'   => $domain,
+                'cert'     => urlencode(file_get_contents($path . '/cert.pem')),
+                'key'      => urlencode(file_get_contents($path . '/key.pem')),
+                'cabundle' => urlencode(file_get_contents($path . '/chain.pem')),
+            ]);
+        }
+        else {
+            Command::exec('sslic', [
+                $domain,
+                $path . '/cert.pem',
+                $path . '/key.pem',
+                $path . '/chain.pem',
+            ]);
+        }
 
         if (Command::$result != 0) {
             reportErrorAndExit('Error when installing certificate for ' . $domain);
@@ -395,7 +418,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     }
 
     if ($skippedDomains = implode(', ', $skippedDomains)) {
-        $climate->info("Certificate already installed for domains: $skippedDomains.");
+        $climate->info("Certificate previously installed for domains: $skippedDomains.");
     }
 
     if ($installedDomains = implode(', ', $installedDomains)) {
