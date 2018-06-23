@@ -247,16 +247,14 @@ class Command {
         $response = shell_exec(implode(' ', $parts));
 
         if ($response = json_decode($response, true)) {
-            $status = isset($response['result']['status']) ? $response['result']['status'] : 0;
-
             $messages = array_merge(
-                isset($response['result']['errors']) ? $response['result']['errors'] : [],
-                isset($response['result']['messages']) ? $response['result']['messages'] : []
+                $response['result']['errors'] ?: [],
+                $response['result']['messages'] ?: []
             );
 
             $this->lastResult(
-                $status ? 0 : 255,
-                $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for unknown reason.'
+                $response['result']['status'] ? 0 : 255,
+                $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for an unknown reason.'
             );
         }
         else {
