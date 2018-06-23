@@ -235,7 +235,7 @@ class Command {
         // add default arguments, when used as root we need to specify cPanel user
         array_splice($parts, 1, 0, array_filter([
             '--output=json',
-            posix_getuid() == 0 ? '--user=' . escapeshellarg(static::$config['cpanel']['user']) : null,
+            posix_getuid() == 0 ? '--user=' . escapeshellarg(static::$config['user']) : null,
         ]));
 
         // obfuscate certificate data for cleaner output

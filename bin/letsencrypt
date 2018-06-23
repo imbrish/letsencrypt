@@ -17,6 +17,7 @@ const EX_CONFIG_PARSING_ERROR  = 5;
 const EX_PROCESSING_ERROR      = 6;
 const EX_CONFIG_INVALID        = 7;
 const EX_AUTOLOAD_OUTDATED     = 8;
+const EX_UAPI_NOT_FOUND        = 9;
 const EX_NAMESERVER_HACK_ERROR = 11;
 
 // define paths
@@ -64,6 +65,13 @@ if (! in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
     $climate->to('error')->error('Please run this script on the command line!');
     exit(EX_SAPI_INVALID);
 }
+
+if (! $uapi = exec('which uapi 2>/dev/null')) {
+    $climate->to('error')->error('UAPI access to the cPanel features is not available!');
+    exit(EX_UAPI_NOT_FOUND);
+}
+
+define('UAPI_BINARY', $uapi);
 
 // register custom error handler
 
@@ -209,19 +217,6 @@ $dir = \Kelunik\AcmeClient\serverToKeyname($server);
 
 $config['certs'] = $config['storage'] . '/certs/' . $dir;
 
-// check if uapi command is available to access the cPanel API
-
-$win = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-
-define('UAPI_BINARY', exec($win ? 'where uapi 2>nul' : 'which uapi 2>/dev/null'));
-
-// set environmental variables used by sslic
-
-if (! UAPI_BINARY) {
-    putenv('USER=' . $config['cpanel']['user']);
-    putenv('PASS=' . $config['cpanel']['password']);
-}
-
 // setup the Command class
 
 Command::$config = $config;
@@ -232,10 +227,6 @@ Command::$aliases = [
         PHP_BINARY,
         $config['base'] . '/bin/acme',
     ],
-    'sslic' => [
-        PHP_BINARY,
-        $config['base'] . '/vendor/neurobin/sslic/sslic.php',
-    ],
     'uapi' => [
         UAPI_BINARY,
         'SSL',
@@ -243,8 +234,8 @@ Command::$aliases = [
     ],
 ];
 
-// insert custom nameserver into 'acme issue' command
-// find resolve command, insert or replace nameserver if defined, remove otherwise
+// insert custom nameserver for 'acme issue' command
+// insert or replace nameserver if defined, remove otherwise
 
 $path = $config['base'] . '/vendor/kelunik/acme-client/src/Commands/Issue.php';
 $search = '/(?<=\\\Amp\\\Dns\\\resolve\(\$domain, \[)(\s*)(?:"server" => ".*",\s*)?(?="types" =>)/';
@@ -387,22 +378,12 @@ foreach ((array) $config['certificates'] as $certificate) {
             continue;
         }
 
-        if (UAPI_BINARY) {
-            Command::exec('uapi', [
-                'domain'   => $domain,
-                'cert'     => urlencode(file_get_contents($path . '/cert.pem')),
-                'key'      => urlencode(file_get_contents($path . '/key.pem')),
-                'cabundle' => urlencode(file_get_contents($path . '/chain.pem')),
-            ]);
-        }
-        else {
-            Command::exec('sslic', [
-                $domain,
-                $path . '/cert.pem',
-                $path . '/key.pem',
-                $path . '/chain.pem',
-            ]);
-        }
+        Command::exec('uapi', [
+            'domain'   => $domain,
+            'cert'     => urlencode(file_get_contents($path . '/cert.pem')),
+            'key'      => urlencode(file_get_contents($path . '/key.pem')),
+            'cabundle' => urlencode(file_get_contents($path . '/chain.pem')),
+        ]);
 
         if (Command::$result != 0) {
             reportErrorAndExit('Error when installing certificate for ' . $domain);
@@ -410,7 +391,7 @@ foreach ((array) $config['certificates'] as $certificate) {
 
         $installedDomains[] = $domain;
 
-        // prevent installing same certificate for same domain again in the future
+        // skip installing same certificate for same domain again in the future
 
         if (file_exists($path)) {
             touch($path . '/installed.' . $domain);

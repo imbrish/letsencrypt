@@ -10,23 +10,8 @@
             "homepage": "https://github.com/imbrish"
         }
     ],
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "neurobin/sslic",
-                "version": "0.0.2",
-                "source": {
-                    "url": "https://github.com/neurobin/sslic.git",
-                    "type": "git",
-                    "reference": "master"
-                }
-            }
-        }
-    ],
     "require": {
         "php": ">=5.4.0",
-        "neurobin/sslic": "*",
 		"kelunik/acme-client": "^0.2.13"
     },
     "autoload": {

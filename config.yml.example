@@ -4,7 +4,7 @@ server: letsencrypt
 
 # Custom nameserver IP used by the "acme issue" command.
 # For example Google public DNS "8.8.8.8" or "8.8.4.4", or Cloudflare 1.1.1.1.
-nameserver: false
+nameserver: null
 
 # Base directory of the certificate document roots.
 home: /home/user
@@ -46,11 +46,9 @@ email: me@example.com
 # Used only when command is called with a "-notify" or "-n" flag.
 notify: me@example.com
 
-# The cPanel credentials necessary to install the certificates.
-# Do not share your configuration file after filling this!
-cpanel:
-    user: example
-    password: secret
+# The cPanel user for which certificates should be installed.
+# Necessary only when logged-in as a root.
+user: user
 
 # By default certificates will be installed in cPanel for all domains listed above.
 # Domains can be filtered by a whitelist of names to accept and/or blacklist to reject.

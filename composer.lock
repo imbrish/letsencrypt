@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f2740775c85c45e196ff17b860ab01a",
+    "content-hash": "03ec421a877c9debdf8e16334651aa41",
     "packages": [
         {
             "name": "amphp/amp",
@@ -780,16 +780,6 @@
                 "token"
             ],
             "time": "2016-01-24T11:10:26+00:00"
-        },
-        {
-            "name": "neurobin/sslic",
-            "version": "0.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/neurobin/sslic.git",
-                "reference": "master"
-            },
-            "type": "library"
         },
         {
             "name": "phpseclib/phpseclib",
