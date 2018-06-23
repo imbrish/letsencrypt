@@ -25,13 +25,6 @@ class Command {
     public static $aliases = [];
 
     /**
-     * Default arguments.
-     * 
-     * @var array
-     */
-    public static $defaults = [];
-
-    /**
      * Last executed command.
      * 
      * @var string
@@ -39,14 +32,14 @@ class Command {
     public static $last;
 
     /**
-     * Result of last execution.
+     * Result of last executed command.
      * 
      * @var int
      */
     public static $result;
 
     /**
-     * Output of last execution.
+     * Output of last executed command.
      * 
      * @var string
      */
@@ -69,9 +62,7 @@ class Command {
      */
     public static function exec($cmd, $args = [])
     {
-        $command = new static($cmd, $args);
-
-        return $command();
+        return call_user_func(new static($cmd, $args));
     }
 
     /**
@@ -86,23 +77,10 @@ class Command {
     {
         // initialize command from alias or as given
         if (array_key_exists($cmd, static::$aliases)) {
-            $this->parts = (array) static::$aliases[$cmd];
-        }
-        else {
-            $this->parts = (array) $cmd;
+            $cmd = (array) static::$aliases[$cmd];
         }
 
-        // attach the default arguments
-        if (array_key_exists($cmd, static::$defaults)) {
-            foreach (static::$defaults[$cmd] as $key => $value) {
-                if (! is_int($key)) {
-                    $args[$key] = $value;
-                }
-                else if (! in_array($value, $args)) {
-                    $args[] = $value;
-                }
-            }
-        }
+        $this->parts = (array) $cmd;
 
         // convert arguments into command parts
         foreach ($args as $key => $value) {
@@ -126,15 +104,15 @@ class Command {
             return strpos($part, ' ') === false ? $part : escapeshellarg($part);
         }, $this->parts);
 
-        // save and show what command is executed
-        static::$last = implode(' ', $parts);
-
-        static::$climate->comment(static::$last);
+        // save and show executed command
+        static::$climate->comment(
+            static::$last = implode(' ', $parts)
+        );
 
         // redirect PHP error log to fetch errors after execution
         $logPath = static::$config['storage'] . '/error.log';
 
-        if ($this->parts[0] === 'php' || $this->parts[0] === PHP_BINARY) {
+        if (in_array($this->parts[0], ['php', PHP_BINARY])) {
             array_splice($parts, 1, 0, [
                 '-d', 'errorLog=' . escapeshellarg($logPath),
             ]);

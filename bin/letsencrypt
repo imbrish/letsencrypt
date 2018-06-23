@@ -246,18 +246,13 @@ Command::$aliases = [
     ],
 ];
 
-Command::$defaults = [
-    'acme' => [
-        '--server'  => $config['server'],
-        '--storage' => $config['storage'],
-    ],
-];
-
 // register a certification account
 
 Command::exec('acme', [
 	'setup',
-	'--email' => $config['email'],
+    '--server'  => $config['server'],
+    '--storage' => $config['storage'],
+	'--email'   => $config['email'],
 ]);
 
 if (Command::$result != 0) {
@@ -308,9 +303,11 @@ foreach ((array) $config['certificates'] as $certificate) {
 
 	Command::exec('acme', [
         'check',
-        '--name'  => $name,
-        '--ttl'   => $config['renew'],
-        '--names' => implode(',', $domainNames),
+        '--server'  => $config['server'],
+        '--storage' => $config['storage'],
+        '--name'    => $name,
+        '--ttl'     => $config['renew'],
+        '--names'   => implode(',', $domainNames),
     ]);
 
     if (Command::$result == 255) {
@@ -325,6 +322,8 @@ foreach ((array) $config['certificates'] as $certificate) {
     else {
         Command::exec('acme', [
             'issue',
+            '--server'  => $config['server'],
+            '--storage' => $config['storage'],
             '--domains' => implode(':', $domainNames),
             '--path'    => implode(':', $domainPaths),
             '--bits'    => $certificate['bits'],
