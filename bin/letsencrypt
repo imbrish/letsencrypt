@@ -232,17 +232,23 @@ file_put_contents($path, $content);
 
 // setup the Command class
 
-Command::$climate = $climate;
 Command::$config = $config;
+Command::$climate = $climate;
 
 Command::$aliases = [
-    'acme' => $config['base'] . '/bin/acme',
-    'sslic' => $config['base'] . '/vendor/neurobin/sslic/sslic.php',
+    'acme'  => [
+        PHP_BINARY,
+        $config['base'] . '/bin/acme',
+    ],
+    'sslic' => [
+        PHP_BINARY,
+        $config['base'] . '/vendor/neurobin/sslic/sslic.php',
+    ],
 ];
 
 Command::$defaults = [
     'acme' => [
-        '--server' => $config['server'],
+        '--server'  => $config['server'],
         '--storage' => $config['storage'],
     ],
 ];
@@ -302,8 +308,8 @@ foreach ((array) $config['certificates'] as $certificate) {
 
 	Command::exec('acme', [
         'check',
-        '--name' => $name,
-        '--ttl' => $config['renew'],
+        '--name'  => $name,
+        '--ttl'   => $config['renew'],
         '--names' => implode(',', $domainNames),
     ]);
 
@@ -320,8 +326,8 @@ foreach ((array) $config['certificates'] as $certificate) {
         Command::exec('acme', [
             'issue',
             '--domains' => implode(':', $domainNames),
-            '--path' => implode(':', $domainPaths),
-            '--bits' => $certificate['bits'],
+            '--path'    => implode(':', $domainPaths),
+            '--bits'    => $certificate['bits'],
         ]);
 
         if (Command::$result != 0) {

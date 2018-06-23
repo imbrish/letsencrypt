@@ -85,10 +85,12 @@ class Command {
     public function __construct($cmd, $args = [])
     {
         // initialize command from alias or as given
-        $this->parts = [
-            PHP_BINARY,
-            array_key_exists($cmd, static::$aliases) ? static::$aliases[$cmd] : $cmd,
-        ];
+        if (array_key_exists($cmd, static::$aliases)) {
+            $this->parts = (array) static::$aliases[$cmd];
+        }
+        else {
+            $this->parts = (array) $cmd;
+        }
 
         // attach the default arguments
         if (array_key_exists($cmd, static::$defaults)) {
@@ -129,10 +131,14 @@ class Command {
 
         static::$climate->comment(static::$last);
 
-        // redirect error log to fetch errors after execution
+        // redirect PHP error log to fetch errors after execution
         $logPath = static::$config['storage'] . '/error.log';
 
-        array_splice($parts, 1, 0, '-d errorLog=' . escapeshellarg($logPath));
+        if ($this->parts[0] === 'php' || $this->parts[0] === PHP_BINARY) {
+            array_splice($parts, 1, 0, [
+                '-d', 'errorLog=' . escapeshellarg($logPath),
+            ]);
+        }
 
         // tunnel error output to the standard output
         $parts[] = '2>&1';
