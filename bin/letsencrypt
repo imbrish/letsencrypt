@@ -423,3 +423,5 @@ if ($notifications) {
 else {
     $climate->info('No certificates were issued and/or installed.');
 }
+
+exit(EX_SUCCESS);
