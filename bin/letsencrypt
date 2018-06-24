@@ -68,7 +68,7 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 }
 
 if (! function_exists('openssl_pkey_get_private')) {
-	$climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
+    $climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
     exit(EX_OPENSSL_NOT_FOUND);
 }
 
@@ -261,10 +261,10 @@ file_put_contents($path, $content);
 // register a certification account
 
 Command::exec('acme', [
-	'setup',
+    'setup',
     '--server'  => $config['server'],
     '--storage' => $config['storage'],
-	'--email'   => $config['email'],
+    '--email'   => $config['email'],
 ]);
 
 if (Command::$result != 0) {
@@ -313,7 +313,7 @@ foreach ((array) $config['certificates'] as $certificate) {
 
     // check whether certificate should be renewed
 
-	Command::exec('acme', [
+    Command::exec('acme', [
         'check',
         '--server'  => $config['server'],
         '--storage' => $config['storage'],
