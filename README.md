@@ -54,6 +54,8 @@ composer install
 chmod 775 bin/letsencrypt
 ```
 
+Remember to review your configuration against `config.yml.example` for possible changes!
+
 ## Configuration
 
 All configuration should be placed in the `config.yml`:
