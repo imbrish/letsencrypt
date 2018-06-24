@@ -253,7 +253,7 @@ class Command {
             );
 
             $this->lastResult(
-                $response['result']['status'] ? 0 : 255,
+                $response['result']['status'] ? 0 : 1,
                 $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for an unknown reason.'
             );
         }
