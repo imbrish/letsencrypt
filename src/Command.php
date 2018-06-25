@@ -46,14 +46,14 @@ class Command {
     public static $output = '';
 
     /**
-     * Non escaped command.
+     * Non escaped command without arguments.
      * 
      * @var string
      */
     protected $cmd;
 
     /**
-     * Flat array of command parts.
+     * Escaped command parts.
      * 
      * @var array
      */
@@ -82,18 +82,8 @@ class Command {
      */
     public function __construct($cmd, $args = [])
     {
-        // clear last error logs, command, result and output
-        if (file_exists(static::$config['error_log'])) {
-            unlink(static::$config['error_log']);
-        }
-
-        static::$last = null;
-        static::$result = null;
-        static::$output = '';
-
-        // initialize command parts from alias or as given
         if (array_key_exists($cmd, static::$aliases)) {
-            $cmd = (array) static::$aliases[$cmd];
+            $cmd = static::$aliases[$cmd];
         }
 
         $parts = array_merge((array) $cmd, $args);
@@ -101,6 +91,43 @@ class Command {
         $this->cmd = reset($parts);
 
         $this->insertParts($this->parts, $parts);
+    }
+
+    /**
+     * Insert command parts at a given position or at the end.
+     *
+     * @return array &$parts
+     * @return int $pos
+     * @return array $new
+     *
+     * @return void
+     */
+    protected function insertParts(&$parts, $pos, $new = null)
+    {
+        if (is_array($pos)) {
+            list($pos, $new) = [count($pos), $pos];
+        }
+
+        // convert keyed parts into options and escape where necessary
+        $parsed = [];
+
+        foreach ($new as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            if (strpos($value, ' ') !== false) {
+                $value = escapeshellarg($value);
+            }
+
+            if (! is_int($key)) {
+                $value = $key . '=' . $value;
+            }
+
+            $parsed[] = $value;
+        }
+
+        array_splice($parts, $pos, 0, $parsed);
     }
 
     /**
@@ -141,6 +168,22 @@ class Command {
     }
 
     /**
+     * Print debug info.
+     *
+     * @param string $info
+     *
+     * @return void
+     */
+    protected function printDebug($info)
+    {
+        $info = trim($info);
+
+        if ($info && static::$config['verbose_enabled']) {
+            static::$climate->whisper($info);
+        }
+    }
+
+    /**
      * Collect errors and clean error log.
      *
      * @return string
@@ -159,49 +202,18 @@ class Command {
     }
 
     /**
-     * Insert parts at given position or at the end.
-     *
-     * @return array &$parts
-     * @return int $pos
-     * @return array $new
-     *
-     * @return void
-     */
-    protected function insertParts(&$parts, $pos, $new = null)
-    {
-        if (is_array($pos)) {
-            list($pos, $new) = [count($pos), $pos];
-        }
-
-        // convert keyed parts into options and escape where necessary
-        $parsed = [];
-
-        foreach ($new as $key => $value) {
-            if ($value === null) {
-                continue;
-            }
-
-            if (strpos($value, ' ') !== false) {
-                $value = escapeshellarg($value);
-            }
-
-            if (! is_int($key)) {
-                $value = $key . '=' . $value;
-            }
-
-            $parsed[] = $value;
-        }
-
-        array_splice($parts, $pos, 0, $parsed);
-    }
-
-    /**
      * Execute command and return result code.
      *
      * @return int
      */
     public function __invoke()
     {
+        static::$last = null;
+        static::$result = null;
+        static::$output = '';
+
+        $this->collectErrors();
+
         if ($this->cmd === PHP_BINARY) {
             $method = 'handlePHP';
         }
@@ -259,9 +271,7 @@ class Command {
         // run command, print errors and output
         exec(implode(' ', $parts), $output, $result);
 
-        if (static::$config['verbose_enabled']) {
-            static::$climate->whisper(trim($this->collectErrors()));
-        }
+        $this->printDebug($this->collectErrors());
 
         $this->printOutput(implode(PHP_EOL, $output));
 
@@ -297,10 +307,8 @@ class Command {
         // run command and parse response to determine result code and output
         $response = shell_exec(implode(' ', $parts));
 
-        if (static::$config['verbose_enabled']) {
-            static::$climate->whisper(trim($this->collectErrors()));
-            static::$climate->whisper('UAPI response: ' . trim($response));
-        }
+        $this->printDebug($this->collectErrors());
+        $this->printDebug('UAPI response: ' . $response);
 
         if (! $response = json_decode($response, true)) {
             $this->printOutput('The UAPI call did not return a valid response.');
