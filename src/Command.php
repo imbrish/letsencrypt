@@ -128,13 +128,13 @@ class Command {
     }
 
     /**
-     * Store and display last command.
+     * Set last command.
      *
      * @param string $command
      *
      * @return void
      */
-    protected function lastCall($command)
+    protected function setLastCommand($command)
     {
         static::$last = $command;
 
@@ -142,14 +142,14 @@ class Command {
     }
 
     /**
-     * Store and display last result and output.
+     * Set last result and output.
      *
      * @param int $result
      * @param string $output
      *
      * @return void
      */
-    protected function lastResult($result, $output)
+    protected function setLastResult($result, $output)
     {
         static::$result = $result;
 
@@ -171,13 +171,13 @@ class Command {
      */
     protected function handle($parts)
     {
-        $this->lastCall(
+        $this->setLastCommand(
             $command = implode(' ', $parts)
         );
 
         exec($command, $output, $result);
 
-        $this->lastResult(
+        $this->setLastResult(
             $result, implode(PHP_EOL, $output)
         );
     }
@@ -191,7 +191,7 @@ class Command {
      */
     protected function handlePHP($parts)
     {
-        $this->lastCall(implode(' ', $parts));
+        $this->setLastCommand(implode(' ', $parts));
 
         // redirect PHP error log to fetch errors after execution
         $logPath = static::$config['storage'] . '/error.log';
@@ -218,7 +218,7 @@ class Command {
         }
 
         // merge command output and collected error logs
-        $this->lastResult(
+        $this->setLastResult(
             $result, implode(PHP_EOL, $output) . PHP_EOL . $errorLog
         );
     }
@@ -239,7 +239,7 @@ class Command {
         ]));
 
         // obfuscate certificate data for cleaner output
-        $this->lastCall(
+        $this->setLastCommand(
             preg_replace('/(-----BEGIN\+[^ ]+)/', '***', implode(' ', $parts))
         );
 
@@ -252,13 +252,13 @@ class Command {
                 $response['result']['messages'] ?: []
             );
 
-            $this->lastResult(
+            $this->setLastResult(
                 $response['result']['status'] ? 0 : 1,
                 $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for an unknown reason.'
             );
         }
         else {
-            $this->lastResult(255, 'The UAPI call did not return a valid response.');
+            $this->setLastResult(255, 'The UAPI call did not return a valid response.');
         }
     }
 }
