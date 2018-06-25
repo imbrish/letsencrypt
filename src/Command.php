@@ -22,7 +22,7 @@ class Command {
      * 
      * @var array
      */
-    public static $aliases;
+    public static $aliases = [];
 
     /**
      * Last executed command.
@@ -43,7 +43,7 @@ class Command {
      * 
      * @var string
      */
-    public static $output;
+    public static $output = '';
 
     /**
      * Non escaped command.
@@ -57,7 +57,14 @@ class Command {
      * 
      * @var array
      */
-    protected $parts;
+    protected $parts = [];
+
+    /**
+     * Path for error logs.
+     * 
+     * @var string
+     */
+    protected $errorLog;
 
     /**
      * Execute command and return result code.
@@ -82,6 +89,17 @@ class Command {
      */
     public function __construct($cmd, $args = [])
     {
+        // clear last error logs, command, result and output
+        $this->errorLog = static::$config['storage'] . '/error.log';
+
+        if (file_exists($this->errorLog)) {
+            unlink($this->errorLog);
+        }
+
+        static::$last = null;
+        static::$result = null;
+        static::$output = '';
+
         // initialize command parts from alias or as given
         if (array_key_exists($cmd, static::$aliases)) {
             $cmd = (array) static::$aliases[$cmd];
@@ -91,8 +109,84 @@ class Command {
 
         $this->cmd = reset($parts);
 
+        $this->insertParts($this->parts, $parts);
+    }
+
+    /**
+     * Print and remember last command.
+     *
+     * @param string $command
+     *
+     * @return void
+     */
+    protected function printCommand($command)
+    {
+        static::$last = $command;
+
+        static::$climate->comment($command);
+    }
+
+    /**
+     * Print and remember output.
+     *
+     * @param string $output
+     *
+     * @return void
+     */
+    protected function printOutput($output)
+    {
+        // remove leading whitespace from every line and all empty lines
+        $output = preg_replace('/^[\t ]*[\n\r]*/m', '', trim($output));
+
+        if ($output) {
+            static::$output .= $output . PHP_EOL;
+
+            static::$climate->out($output);
+        }
+    }
+
+    /**
+     * Print errors and clean error log.
+     *
+     * @return void
+     */
+    protected function printErrors()
+    {
+        if (! file_exists($this->errorLog)) {
+            return;
+        }
+
+        // remove timestamps from the logged errors
+        $errors = preg_replace('/^\[.+?\] /m', '', file_get_contents($this->errorLog));
+
+        $this->printOutput($errors);
+
+        unlink($this->errorLog);
+    }
+
+    /**
+     * Insert parts at given position or at the end.
+     *
+     * @return array &$parts
+     * @return int $pos
+     * @return array $new
+     *
+     * @return void
+     */
+    protected function insertParts(&$parts, $pos, $new = null)
+    {
+        if (is_array($pos)) {
+            list($pos, $new) = [count($pos), $pos];
+        }
+
         // convert keyed parts into options and escape where necessary
-        foreach ($parts as $key => $value) {
+        $parsed = [];
+
+        foreach ($new as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
             if (strpos($value, ' ') !== false) {
                 $value = escapeshellarg($value);
             }
@@ -101,8 +195,10 @@ class Command {
                 $value = $key . '=' . $value;
             }
 
-            $this->parts[] = $value;
+            $parsed[] = $value;
         }
+
+        array_splice($parts, $pos, 0, $parsed);
     }
 
     /**
@@ -122,44 +218,7 @@ class Command {
             $method = 'handle';
         }
 
-        $this->$method($this->parts);
-
-        return static::$result;
-    }
-
-    /**
-     * Set last command.
-     *
-     * @param string $command
-     *
-     * @return void
-     */
-    protected function setLastCommand($command)
-    {
-        static::$last = $command;
-
-        static::$climate->comment($command);
-    }
-
-    /**
-     * Set last result and output.
-     *
-     * @param int $result
-     * @param string $output
-     *
-     * @return void
-     */
-    protected function setLastResult($result, $output)
-    {
-        static::$result = $result;
-
-        $output = preg_replace('/^[\t ]*[\n\r]*/m', '', trim($output));
-
-        static::$output = $output;
-
-        if ($output) {
-            static::$climate->out($output);
-        }
+        return static::$result = $this->$method($this->parts);
     }
 
     /**
@@ -167,19 +226,17 @@ class Command {
      *
      * @param array $parts
      *
-     * @return void
+     * @return int
      */
     protected function handle($parts)
     {
-        $this->setLastCommand(
-            $command = implode(' ', $parts)
-        );
+        $this->printCommand($command = implode(' ', $parts));
 
         exec($command, $output, $result);
 
-        $this->setLastResult(
-            $result, implode(PHP_EOL, $output)
-        );
+        $this->printOutput(implode(PHP_EOL, $output));
+
+        return $result;
     }
 
     /**
@@ -187,40 +244,32 @@ class Command {
      *
      * @param array $parts
      *
-     * @return void
+     * @return int
      */
     protected function handlePHP($parts)
     {
-        $this->setLastCommand(implode(' ', $parts));
+        // print command before adding debug
+        $this->printCommand(implode(' ', $parts));
 
-        // redirect PHP error log to fetch errors after execution
-        $logPath = static::$config['storage'] . '/error.log';
-
-        array_splice($parts, 1, 0, [
+        // redirect errors to fetch after execution
+        $this->insertParts($parts, 1, [
             '-d',
-            'errorLog=' . escapeshellarg($logPath),
+            'errorLog' => $this->errorLog,
         ]);
 
-        // tunnel error output to the standard output
-        $parts[] = '2>&1';
+        $this->insertParts($parts, [
+            '2>',
+            $this->errorLog,
+        ]);
 
-        // run command, store its output and return code
+        // run command, print errors and output
         exec(implode(' ', $parts), $output, $result);
 
-        // get and erase temporary error log, remove dates from the logged errors
-        if (file_exists($logPath)) {
-            $errorLog = preg_replace('/^\[.+?\] /m', '', file_get_contents($logPath));
+        $this->printErrors();
 
-            unlink($logPath);
-        }
-        else {
-            $errorLog = '';
-        }
+        $this->printOutput(implode(PHP_EOL, $output));
 
-        // merge command output and collected error logs
-        $this->setLastResult(
-            $result, implode(PHP_EOL, $output) . PHP_EOL . $errorLog
-        );
+        return $result;
     }
 
     /**
@@ -228,37 +277,46 @@ class Command {
      *
      * @param array $parts
      *
-     * @return void
+     * @return int
      */
     protected function handleUAPI($parts)
     {
         // add default arguments, when used as root we need to specify cPanel user
-        array_splice($parts, 1, 0, array_filter([
-            '--output=json',
-            posix_getuid() == 0 ? '--user=' . escapeshellarg(static::$config['user']) : null,
-        ]));
+        $this->insertParts($parts, 1, [
+            '--output' => 'json',
+            '--user' => posix_getuid() == 0 ? static::$config['user'] : null,
+        ]);
 
         // obfuscate certificate data for cleaner output
-        $this->setLastCommand(
+        $this->printCommand(
             preg_replace('/(-----BEGIN\+[^ ]+)/', '***', implode(' ', $parts))
         );
+
+        // redirect errors to fetch after execution
+        $this->insertParts($parts, [
+            '2>',
+            $this->errorLog,
+        ]);
 
         // run command and parse response to determine result code and output
         $response = shell_exec(implode(' ', $parts));
 
-        if ($response = json_decode($response, true)) {
-            $messages = array_merge(
-                $response['result']['errors'] ?: [],
-                $response['result']['messages'] ?: []
-            );
+        $this->printErrors();
 
-            $this->setLastResult(
-                $response['result']['status'] ? 0 : 1,
-                $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for an unknown reason.'
-            );
+        if (! $response = json_decode($response, true)) {
+            $this->printOutput('The UAPI call did not return a valid response.');
+            return 255;
         }
-        else {
-            $this->setLastResult(255, 'The UAPI call did not return a valid response.');
-        }
+
+        $messages = array_merge(
+            $response['result']['errors'] ?: [],
+            $response['result']['messages'] ?: []
+        );
+
+        $this->printOutput(
+            $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for an unknown reason.'
+        );
+
+        return $response['result']['status'] ? 0 : 1;
     }
 }
