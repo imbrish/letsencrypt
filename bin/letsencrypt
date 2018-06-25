@@ -324,7 +324,7 @@ if (Command::$result != EX_SUCCESS) {
 // check, issue and setup certificates
 
 $notifications = [];
-$domains = [];
+$allDomains = [];
 
 foreach ((array) $config['certificates'] as $certificate) {
 
@@ -342,7 +342,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     $domainNames = array_keys($domainsMap);
     $domainPaths = array_values($domainsMap);
 
-    $domains += $domainNames;
+    $allDomains += $domainNames;
 
     // skip if domains omitted in the certificates argument
 
@@ -480,7 +480,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     }
 }
 
-if ($missing = implode(', ', array_diff($config['only'], $domains))) {
+if ($missing = implode(', ', array_diff($config['only'], $allDomains))) {
     $climate->to('error')->error("No certificates configured for domains: $missing!");
     exit(EX_CONFIG_INVALID);
 }
