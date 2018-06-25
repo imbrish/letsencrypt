@@ -50,3 +50,24 @@ function removeDirectory($dir) {
 
     rmdir($dir);
 }
+
+// convert smart quotes to regular quotes
+
+function convertQuotes($str) {
+    static $chars = [
+       "\xC2\xAB"     => '"', // U+00AB left-pointing double angle quotation mark
+       "\xC2\xBB"     => '"', // U+00BB right-pointing double angle quotation mark
+       "\xE2\x80\x98" => "'", // U+2018 left single quotation mark
+       "\xE2\x80\x99" => "'", // U+2019 right single quotation mark
+       "\xE2\x80\x9A" => "'", // U+201A single low-9 quotation mark
+       "\xE2\x80\x9B" => "'", // U+201B single high-reversed-9 quotation mark
+       "\xE2\x80\x9C" => '"', // U+201C left double quotation mark
+       "\xE2\x80\x9D" => '"', // U+201D right double quotation mark
+       "\xE2\x80\x9E" => '"', // U+201E double low-9 quotation mark
+       "\xE2\x80\x9F" => '"', // U+201F double high-reversed-9 quotation mark
+       "\xE2\x80\xB9" => "'", // U+2039 single left-pointing angle quotation mark
+       "\xE2\x80\xBA" => "'", // U+203A single right-pointing angle quotation mark
+    ];
+
+    return strtr($str, $chars);
+}

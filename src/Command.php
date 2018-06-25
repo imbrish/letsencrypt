@@ -136,7 +136,10 @@ class Command {
     protected function printOutput($output)
     {
         // remove leading whitespace from every line and all empty lines
-        $output = preg_replace('/^[\t ]*[\n\r]*/m', '', trim($output));
+        $output = preg_replace('/^[\t ]*[\n\r]*/m', '', $output);
+
+        $output = convertQuotes($output);
+        $output = trim($output);
 
         if ($output) {
             static::$output .= $output . PHP_EOL;
