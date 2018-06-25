@@ -260,7 +260,7 @@ class Command {
         // redirect errors to fetch after execution
         $this->insertParts($parts, 1, [
             '-d',
-            'errorLog' => $this->errorLog,
+            'error_log' => $this->errorLog,
         ]);
 
         $this->insertParts($parts, [
