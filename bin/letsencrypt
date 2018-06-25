@@ -133,6 +133,12 @@ $climate->arguments->add([
         'description'  => 'Name of the configuration file including extension',
         'defaultValue' => 'config.yml',
     ],
+    'verbose' => [
+        'prefix'       => 'v',
+        'longPrefix'   => 'verbose',
+        'description'  => 'Enable verbose output',
+        'noValue'      => true,
+    ],
     'help' => [
         'prefix'       => 'h',
         'longPrefix'   => 'help',

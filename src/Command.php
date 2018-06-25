@@ -123,7 +123,9 @@ class Command {
     {
         static::$last = $command;
 
-        static::$climate->comment($command);
+        if (static::$climate->arguments->defined('verbose')) {
+            static::$climate->comment($command);
+        }
     }
 
     /**
@@ -162,7 +164,9 @@ class Command {
         // remove timestamps from the logged errors
         $errors = preg_replace('/^\[.+?\] /m', '', file_get_contents($this->errorLog));
 
-        $this->printOutput($errors);
+        if (static::$climate->arguments->defined('verbose')) {
+            $this->printOutput($errors);
+        }
 
         unlink($this->errorLog);
     }

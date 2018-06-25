@@ -153,6 +153,7 @@ Command line arguments:
 | --- | --- |
 | `-n`, `--notify` | Send email notification about errors or issued certificates |
 | `-c`, `--config` | Name of the configuration file including extension, by default `config.yml` |
+| `-v`, `--verbose` | Enable verbose output |
 | `-h`, `--help` | Display the help message |
 | | Optional list of certificate common names to issue and install only <br> a subset of certificates defined in the configuration file. |
 
