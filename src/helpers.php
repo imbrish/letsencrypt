@@ -16,7 +16,7 @@ function sendNotification($subject, $message) {
     $result = mail($address, $subject, $message);
 
     if (! $result) {
-        $climate->to('error')->shout('Failed to send the email notification');
+        $climate->to('error')->shout('Failed to send the email notification.');
     }
 }
 

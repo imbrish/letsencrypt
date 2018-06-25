@@ -67,13 +67,13 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     exit(EX_WINDOWS_NOT_SUPPORTED);
 }
 
-if (! function_exists('openssl_pkey_get_private')) {
+if (! extension_loaded('openssl')) {
     $climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
     exit(EX_OPENSSL_NOT_FOUND);
 }
 
 if (! $uapi = exec('which uapi 2>/dev/null')) {
-    $climate->to('error')->error('UAPI access to the cPanel features is not available!');
+    $climate->to('error')->error('UAPI access to cPanel is not available!');
     exit(EX_UAPI_NOT_FOUND);
 }
 
@@ -216,7 +216,7 @@ try {
     $yaml = Yaml::parse(file_get_contents($path));
     $config = array_merge($yaml, $config);
 } catch (ParseException $e) {
-    $climate->to('error')->error('There was an error when parsing config file!');
+    $climate->to('error')->error('There was an error when parsing the configuration file!');
     exit(EX_CONFIG_PARSING_ERROR);
 }
 
@@ -268,7 +268,7 @@ Command::exec('acme', [
 ]);
 
 if (Command::$result != 0) {
-    reportErrorAndExit('Failed to setup acme client');
+    reportErrorAndExit('Failed to setup ACME client.');
 }
 
 // check, issue and setup certificates
@@ -300,7 +300,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     // extract certificate meta
 
     if (! $domainNames) {
-        $climate->to('error')->error('Invalid config, domains for certificate not defined');
+        $climate->to('error')->error('Invalid config, domains for certificate not defined.');
         exit(EX_CONFIG_INVALID);
     }
 
@@ -394,7 +394,7 @@ foreach ((array) $config['certificates'] as $certificate) {
         ]);
 
         if (Command::$result != 0) {
-            reportErrorAndExit('Error when installing certificate for ' . $domain);
+            reportErrorAndExit("Error when installing certificate for $domain.");
         }
 
         $installedDomains[] = $domain;
@@ -418,7 +418,7 @@ foreach ((array) $config['certificates'] as $certificate) {
 }
 
 if ($notifications) {
-    sendNotification('New certificates were issued and/or installed', implode(PHP_EOL, $notifications));
+    sendNotification('New certificates were issued and/or installed.', implode(PHP_EOL, $notifications));
 }
 else {
     $climate->info('No certificates were issued and/or installed.');
