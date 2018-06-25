@@ -48,7 +48,7 @@ notify: me@example.com
 
 # The cPanel user for which certificates should be installed.
 # Necessary only when logged-in as a root.
-user: user
+user: null
 
 # By default certificates will be installed in cPanel for all domains listed above.
 # Domains can be filtered by a whitelist of names to accept and/or blacklist to reject.
