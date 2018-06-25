@@ -218,7 +218,7 @@ if ($climate->arguments->defined('help')) {
 $name = $climate->arguments->get('config');
 $config['source'] = $config['base'] . '/' . $name;
 
-if (! file_exists($config['source'])) {
+if (! is_file($config['source'])) {
     $climate->to('error')->error("Config file '$name' could not be found!");
     exit(EX_CONFIG_NOT_FOUND);
 }
