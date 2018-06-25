@@ -7,13 +7,11 @@ use Imbrish\LetsEncrypt\Command;
 function sendNotification($subject, $message) {
     global $climate, $config;
 
-    if (! $climate->arguments->defined('notify')) {
+    if (! $config['notify_enabled']) {
         return;
     }
 
-    $address = $climate->arguments->get('notify') ?: $config['notify'];
-
-    $result = mail($address, $subject, $message);
+    $result = mail($config['notify_email'], $subject, $message);
 
     if (! $result) {
         $climate->to('error')->shout('Failed to send the email notification.');

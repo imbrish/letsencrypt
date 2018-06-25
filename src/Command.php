@@ -60,13 +60,6 @@ class Command {
     protected $parts = [];
 
     /**
-     * Path for error logs.
-     * 
-     * @var string
-     */
-    protected $errorLog;
-
-    /**
      * Execute command and return result code.
      *
      * @param string $cmd
@@ -90,10 +83,8 @@ class Command {
     public function __construct($cmd, $args = [])
     {
         // clear last error logs, command, result and output
-        $this->errorLog = static::$config['storage'] . '/error.log';
-
-        if (file_exists($this->errorLog)) {
-            unlink($this->errorLog);
+        if (file_exists(static::$config['error_log'])) {
+            unlink(static::$config['error_log']);
         }
 
         static::$last = null;
@@ -123,7 +114,7 @@ class Command {
     {
         static::$last = $command;
 
-        if (static::$climate->arguments->defined('verbose')) {
+        if (static::$config['verbose_enabled']) {
             static::$climate->comment($command);
         }
     }
@@ -156,18 +147,18 @@ class Command {
      */
     protected function printErrors()
     {
-        if (! file_exists($this->errorLog)) {
+        if (! file_exists(static::$config['error_log'])) {
             return;
         }
 
         // remove timestamps from the logged errors
-        $errors = preg_replace('/^\[.+?\] /m', '', file_get_contents($this->errorLog));
+        $errors = preg_replace('/^\[.+?\] /m', '', file_get_contents(static::$config['error_log']));
 
-        if (static::$climate->arguments->defined('verbose')) {
+        if (static::$config['verbose_enabled']) {
             $this->printOutput($errors);
         }
 
-        unlink($this->errorLog);
+        unlink(static::$config['error_log']);
     }
 
     /**
@@ -260,12 +251,12 @@ class Command {
         // redirect errors to fetch after execution
         $this->insertParts($parts, 1, [
             '-d',
-            'error_log' => $this->errorLog,
+            'error_log' => static::$config['error_log'],
         ]);
 
         $this->insertParts($parts, [
             '2>',
-            $this->errorLog,
+            static::$config['error_log'],
         ]);
 
         // run command, print errors and output
@@ -301,7 +292,7 @@ class Command {
         // redirect errors to fetch after execution
         $this->insertParts($parts, [
             '2>',
-            $this->errorLog,
+            static::$config['error_log'],
         ]);
 
         // run command and parse response to determine result code and output

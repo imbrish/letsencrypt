@@ -23,10 +23,13 @@ const EX_NAMESERVER_HACK_ERROR = 11;
 const EX_UAPI_CALL_FAILED      = 12;
 const EX_UNKNOWN_ERROR         = 255;
 
-// define paths
+// initialize config and define paths
+
+$config = [];
 
 $config['base'] = realpath(__DIR__ . '/..');
 $config['storage'] = $config['base'] . '/storage';
+$config['error_log'] = $config['storage'] . '/error.log';
 
 // check and require composer autoloader
 
@@ -172,7 +175,7 @@ foreach ($climate->arguments->all() as $argument) {
     }
 }
 
-$certificates = [];
+$config['only'] = [];
 $skipNext = false;
 
 for ($i = 1; $i < count($argv); $i++) {
@@ -180,14 +183,14 @@ for ($i = 1; $i < count($argv); $i++) {
         $skipNext = true;
     }
     else if ($argv[$i] === '--') {
-        $certificates = [];
+        $config['only'] = [];
         $skipNext = false;
     }
     else if ($skipNext) {
         $skipNext = false;
     }
     else if (substr($argv[$i], 0, 1) !== '-') {
-        $certificates[] = $argv[$i];
+        $config['only'][] = $argv[$i];
     }
 }
 
@@ -213,20 +216,27 @@ if ($climate->arguments->defined('help')) {
 // load configuration
 
 $name = $climate->arguments->get('config');
-$path = $config['base'] . '/' . $name;
+$config['source'] = $config['base'] . '/' . $name;
 
-if (! file_exists($path)) {
+if (! file_exists($config['source'])) {
     $climate->to('error')->error("Config file '$name' could not be found!");
     exit(EX_CONFIG_NOT_FOUND);
 }
 
 try {
-    $yaml = Yaml::parse(file_get_contents($path));
+    $yaml = Yaml::parse(file_get_contents($config['source']));
     $config = array_merge($yaml, $config);
 } catch (ParseException $e) {
     $climate->to('error')->error('There was an error when parsing the configuration file!');
     exit(EX_CONFIG_PARSING_ERROR);
 }
+
+// update config from arguments
+
+$config['notify_enabled'] = $climate->arguments->defined('notify');
+$config['notify_email'] = $climate->arguments->get('notify') ?: $config['notify'];
+
+$config['verbose_enabled'] = $climate->arguments->defined('verbose');
 
 // check the configuration
 
@@ -247,7 +257,7 @@ if (! $config['email']) {
     exit(EX_CONFIG_INVALID);
 }
 
-if ($climate->arguments->defined('notify') && ! ($climate->arguments->get('notify') || $config['notify'])) {
+if ($config['notify_enabled'] && ! $config['notify_email']) {
     $climate->to('error')->error("Notification email is missing, please check the config or provide value for '--notify' option!");
     exit(EX_CONFIG_INVALID);
 }
@@ -327,7 +337,7 @@ foreach ((array) $config['certificates'] as $certificate) {
 
     // skip if domains omitted in the certificates argument
 
-    if ($certificates && ! array_intersect($domainNames, $certificates)) {
+    if ($config['only'] && ! array_intersect($domainNames, $config['only'])) {
         continue;
     }
 
