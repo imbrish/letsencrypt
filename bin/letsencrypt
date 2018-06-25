@@ -433,6 +433,10 @@ foreach ((array) $config['certificates'] as $certificate) {
             'cabundle' => urlencode($chainContent),
         ]);
 
+        if (Command::$result == EX_UAPI_CALL_FAILED && strpos($server, 'acme-staging.api.letsencrypt.org')) {
+            reportErrorAndExit("Error when installing certificate for $domain, could not install certificate issued by staging server.");
+        }
+
         if (Command::$result != EX_SUCCESS) {
             reportErrorAndExit("Error when installing certificate for $domain.");
         }
