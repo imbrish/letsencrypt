@@ -140,7 +140,6 @@ class Command {
         // remove leading whitespace from every line and all empty lines
         $output = preg_replace('/^[\t ]*[\n\r]*/m', '', $output);
 
-        $output = convertQuotes($output);
         $output = trim($output);
 
         if ($output) {
@@ -315,14 +314,12 @@ class Command {
             return 255;
         }
 
-        $messages = array_merge(
+        $messages = convertQuotes(implode(PHP_EOL, array_merge(
             $response['result']['errors'] ?: [],
             $response['result']['messages'] ?: []
-        );
+        )));
 
-        $this->printOutput(
-            $messages ? implode(PHP_EOL, $messages) : 'The UAPI call failed for an unknown reason.'
-        );
+        $this->printOutput($messages ?: 'The UAPI call failed for an unknown reason.');
 
         return $response['result']['status'] ? 0 : 1;
     }
