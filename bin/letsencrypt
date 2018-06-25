@@ -20,6 +20,8 @@ const EX_AUTOLOAD_OUTDATED     = 8;
 const EX_UAPI_NOT_FOUND        = 9;
 const EX_WINDOWS_NOT_SUPPORTED = 10;
 const EX_NAMESERVER_HACK_ERROR = 11;
+const EX_UAPI_CALL_FAILED      = 12;
+const EX_UNKNOWN_ERROR         = 255;
 
 // define paths
 
@@ -299,7 +301,7 @@ Command::exec('acme', [
     '--email'   => $config['email'],
 ]);
 
-if (Command::$result != 0) {
+if (Command::$result != EX_SUCCESS) {
     reportErrorAndExit('Failed to setup ACME client.');
 }
 
@@ -354,13 +356,13 @@ foreach ((array) $config['certificates'] as $certificate) {
         '--names'   => implode(',', $domainNames),
     ]);
 
-    if (Command::$result == 255) {
+    if (Command::$result == EX_UNKNOWN_ERROR) {
         reportErrorAndExit("Error when checking certificate $name.");
     }
 
     // issue new certificate
 
-    if (Command::$result == 0) {
+    if (Command::$result == EX_SUCCESS) {
         $climate->info("Certificate still valid for domains: $domains.");
     }
     else {
@@ -373,7 +375,7 @@ foreach ((array) $config['certificates'] as $certificate) {
             '--bits'    => $certificate['bits'],
         ]);
 
-        if (Command::$result != 0) {
+        if (Command::$result != EX_SUCCESS) {
             removeDirectory($path);
             reportErrorAndExit("Error when issuing certificate $name.");
         }
@@ -431,7 +433,7 @@ foreach ((array) $config['certificates'] as $certificate) {
             'cabundle' => urlencode($chainContent),
         ]);
 
-        if (Command::$result != 0) {
+        if (Command::$result != EX_SUCCESS) {
             reportErrorAndExit("Error when installing certificate for $domain.");
         }
 

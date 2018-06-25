@@ -311,7 +311,7 @@ class Command {
 
         if (! $response = json_decode($response, true)) {
             $this->printOutput('The UAPI call did not return a valid response.');
-            return 255;
+            return EX_UNKNOWN_ERROR;
         }
 
         $messages = convertQuotes(implode(PHP_EOL, array_merge(
@@ -321,6 +321,10 @@ class Command {
 
         $this->printOutput($messages ?: 'The UAPI call failed for an unknown reason.');
 
-        return $response['result']['status'] ? 0 : 1;
+        if (! $response['result']['status']) {
+            return EX_UAPI_CALL_FAILED;
+        }
+
+        return EX_SUCCESS;
     }
 }
