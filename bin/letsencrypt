@@ -68,7 +68,7 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 }
 
 if (! extension_loaded('openssl')) {
-    $climate->to('error')->error('You need to enable OpenSSL in your php.ini!');
+    $climate->to('error')->error('Please enable OpenSSL extension in your php.ini!');
     exit(EX_OPENSSL_NOT_FOUND);
 }
 
@@ -220,6 +220,32 @@ try {
     exit(EX_CONFIG_PARSING_ERROR);
 }
 
+// check the configuration
+
+try {
+    \Kelunik\AcmeClient\resolveServer($config['server']);
+} catch (InvalidArgumentException $e) {
+    $climate->to('error')->error('Invalid server, please specify a valid shortcut or full URL!');
+    exit(EX_CONFIG_INVALID);
+}
+
+if (! $config['certificates']) {
+    $climate->to('error')->error('No certificates defined, please check the config!');
+    exit(EX_CONFIG_INVALID);
+}
+
+if (! $config['email']) {
+    $climate->to('error')->error('Registration email is missing, please check the config!');
+    exit(EX_CONFIG_INVALID);
+}
+
+if ($climate->arguments->defined('notify') && ! ($climate->arguments->get('notify') || $config['notify'])) {
+    $climate->to('error')->error("Notification email is missing, please check the config or provide value for '--notify' option!");
+    exit(EX_CONFIG_INVALID);
+}
+
+// define certificate storage path
+
 $server = \Kelunik\AcmeClient\resolveServer($config['server']);
 $dir = \Kelunik\AcmeClient\serverToKeyname($server);
 
@@ -300,7 +326,7 @@ foreach ((array) $config['certificates'] as $certificate) {
     // extract certificate meta
 
     if (! $domainNames) {
-        $climate->to('error')->error('Invalid config, domains for certificate not defined.');
+        $climate->to('error')->error('Domains for the certificate are missing, please check the config!');
         exit(EX_CONFIG_INVALID);
     }
 
