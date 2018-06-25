@@ -286,6 +286,12 @@ Command::$aliases = [
     ],
 ];
 
+// print complete config for debugging
+
+if ($config['verbose_enabled']) {
+    $climate->whisper('Complete configuration: ' . json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
 // insert custom nameserver for 'acme issue' command
 // insert or replace nameserver if defined, remove otherwise
 

@@ -141,24 +141,21 @@ class Command {
     }
 
     /**
-     * Print errors and clean error log.
+     * Collect errors and clean error log.
      *
-     * @return void
+     * @return string
      */
-    protected function printErrors()
+    protected function collectErrors()
     {
         if (! file_exists(static::$config['error_log'])) {
-            return;
+            return '';
         }
 
-        // remove timestamps from the logged errors
-        $errors = preg_replace('/^\[.+?\] /m', '', file_get_contents(static::$config['error_log']));
-
-        if (static::$config['verbose_enabled']) {
-            $this->printOutput($errors);
-        }
+        $errors = file_get_contents(static::$config['error_log']);
 
         unlink(static::$config['error_log']);
+
+        return $errors;
     }
 
     /**
@@ -262,7 +259,9 @@ class Command {
         // run command, print errors and output
         exec(implode(' ', $parts), $output, $result);
 
-        $this->printErrors();
+        if (static::$config['verbose_enabled']) {
+            static::$climate->whisper(trim($this->collectErrors()));
+        }
 
         $this->printOutput(implode(PHP_EOL, $output));
 
@@ -280,7 +279,7 @@ class Command {
     {
         // add default arguments, when used as root we need to specify cPanel user
         $this->insertParts($parts, 1, [
-            '--output' => 'json',
+            '--output' => 'jsonpretty',
             '--user' => posix_getuid() == 0 ? static::$config['user'] : null,
         ]);
 
@@ -298,7 +297,10 @@ class Command {
         // run command and parse response to determine result code and output
         $response = shell_exec(implode(' ', $parts));
 
-        $this->printErrors();
+        if (static::$config['verbose_enabled']) {
+            static::$climate->whisper(trim($this->collectErrors()));
+            static::$climate->whisper('UAPI response: ' . trim($response));
+        }
 
         if (! $response = json_decode($response, true)) {
             $this->printOutput('The UAPI call did not return a valid response.');
