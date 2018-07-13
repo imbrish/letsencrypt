@@ -5,7 +5,7 @@ PHP script to automatically issue and renew [Let's Encrypt](https://letsencrypt.
 
 Development of the script was inspired by [this article](https://neurobin.org/docs/web/fully-automated-letsencrypt-integration-with-cpanel/).
 
-Checking, issuing and renewal of certificates is handled using [`kelunik/acme-client`](https://github.com/kelunik/acme-client).
+Checking, issuing and renewal of certificates is handled using [kelunik/acme-client](https://github.com/kelunik/acme-client).
 
 Thanks to the authors!
 
@@ -136,7 +136,7 @@ chmod 775 bin/letsencrypt
 bin/letsencrypt
 ```
 
-Alternatively use `php` to execute the script:
+Alternatively use PHP to execute the script:
 
 ```bash
 php bin/letsencrypt
@@ -181,8 +181,4 @@ which php
 
 ## Alternatives
 
-The [`Neilpang/acme.sh`](https://github.com/Neilpang/acme.sh) may be a more robust alternative. A few relevant guides:
-
-- https://github.com/Neilpang/acme.sh/wiki/How-to-install
-- https://github.com/Neilpang/acme.sh/wiki/How-to-issue-a-cert
-- https://github.com/Neilpang/acme.sh/wiki/Simple-guide-to-add-TLS-cert-to-cpanel
+The [Neilpang/acme.sh](https://github.com/Neilpang/acme.sh) may be a more robust alternative.
